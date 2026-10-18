@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Tutorial Library{% endblock %}
+
+{% block body_class %}et_pb_pagebuilder_layout page-template-default single single-page{% endblock %}
+
+{% block content %}
+<div id="main-content">
+    <div class="container" style="padding-top:58px;">
+        <h1 style="padding-bottom:10px;">Tutorial Library</h1>
+        {% if request.user.is_authenticated and not request.user.is_approved %}
+        <p>Your account has not been approved yet — tutorials are listed below, but playback stays locked until an administrator approves you.</p>
+        {% elif not request.user.is_authenticated %}
+        <p><a href="{% url 'accounts:login' %}?next=/tutorials/">Sign in</a> to see which tutorials you can open.</p>
+        {% endif %}
+
+        {% for group in groups %}
+            {% if group.category %}
+                <h2 style="padding-top:24px;">{{ group.category.name }}</h2>
+            {% else %}
+                <h2 style="padding-top:24px;">Other tutorials</h2>
+            {% endif %}
+            {% include "tutorials/_grid.html" with tutorials=group.items %}
+        {% endfor %}
+
+        {% if not groups %}
+            <p>No tutorials have been published yet.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

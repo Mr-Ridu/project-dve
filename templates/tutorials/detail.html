@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}{{ tutorial.title }}{% endblock %}
+
+{% block body_class %}et_pb_pagebuilder_layout page-template-default single single-page{% endblock %}
+
+{% block content %}
+<div id="main-content">
+    <div class="container" style="padding-top:58px;">
+        <p><a href="{% url 'tutorials:list' %}">&larr; Back to the tutorial library</a></p>
+        <h1 style="padding-bottom:10px;">{{ tutorial.title }}</h1>
+        {% if tutorial.description %}<p>{{ tutorial.description }}</p>{% endif %}
+        {% if tutorial.estimated_minutes %}
+        <p style="color:#666;">Estimated time: {{ tutorial.estimated_minutes }} minutes</p>
+        {% endif %}
+
+        <div id="tmt-player"
+             data-authorize-url="{% url 'tutorials:authorize' tutorial.slug %}"
+             data-provider="{{ tutorial.video_provider }}"
+             {% if progress %}
+             data-percent="{{ progress.percent }}"
+             data-seconds-watched="{{ progress.seconds_watched }}"
+             {% endif %}
+             style="min-height:120px;border:1px solid #e2e2e2;padding:16px;border-radius:3px;">
+            <p>Playback starts here (Phase 6 wires the real video provider).</p>
+        </div>
+
+        {% if progress %}
+        <p style="color:#666;padding-top:8px;">
+            Your progress: {{ progress.percent }}%{% if progress.completed %} — completed{% endif %}
+        </p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
