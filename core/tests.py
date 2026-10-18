@@ -101,7 +101,10 @@ class DesignFidelityTests(TestCase):
     def test_shell_markers_on_core_pages(self):
         markers = [
             "techno-mate-logo",       # logo asset
-            "Pharma &amp; Biotech",   # industry strip
+            # Intentional change (user-requested navbar cleanup): the dead
+            # industry strip (Pharma & Biotech… — all href="#") was removed
+            # from the header, so the kept CTA button now marks the shell.
+            "Request Support",
             "Techno Mate Technologies",  # footer/site name
             'id="main-content"',
             "Join Our Newsletter",
