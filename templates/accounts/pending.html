@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Awaiting approval{% endblock %}
+
+{% block content %}
+<div id="main-content">
+    <div class="container" style="max-width:640px;padding-top:58px;">
+        <h1 style="padding-bottom:20px;">Account not yet approved</h1>
+        <p>Your account exists, but an administrator has not approved it for
+        tutorial access. If you believe this is an error, contact the site team.</p>
+        <p>You are signed in — you can browse the public site meanwhile.</p>
+        <p>
+            <a href="{% url 'core:home' %}" class="et_pb_button">Return to the home page</a>
+        </p>
+        <form method="post" action="{% url 'accounts:logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="et_pb_button" style="margin-top:20px;">Sign out</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

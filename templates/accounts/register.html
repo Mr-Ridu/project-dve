@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Create an account{% endblock %}
+
+{% block content %}
+<div id="main-content">
+    <div class="container" style="max-width:520px;padding-top:58px;">
+        <h1 style="padding-bottom:20px;">Create an account</h1>
+        {% if messages %}
+            {% for message in messages %}
+                <p class="auth-message auth-message-{{ message.tags }}">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {% for field in form %}
+                <p>
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label><br />
+                    {{ field }} {{ field.errors }}
+                    {% if field.help_text %}<small style="color:#8a8a8a;">{{ field.help_text }}</small>{% endif %}
+                </p>
+            {% endfor %}
+            <p><button type="submit" class="et_pb_button">Create account</button></p>
+        </form>
+        <p>Already registered? <a href="{% url 'accounts:login' %}">Sign in</a>.</p>
+        <p style="font-size:13px;color:#787878;">Accounts are reviewed by a
+        administrator before tutorial access is granted.</p>
+    </div>
+</div>
+{% endblock %}

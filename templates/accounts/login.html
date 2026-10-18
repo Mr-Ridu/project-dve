@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Sign in{% endblock %}
+
+{% block content %}
+<div id="main-content">
+    <div class="container" style="max-width:420px;padding-top:58px;">
+        <h1 style="padding-bottom:20px;">Sign in</h1>
+        {% if messages %}
+            {% for message in messages %}
+                <p class="auth-message auth-message-{{ message.tags }}">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+        <form method="post" novalidate>
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next|escape }}" />
+            {% for field in form %}
+                <p>
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label><br />
+                    {{ field }} {{ field.errors }}
+                </p>
+            {% endfor %}
+            <p><button type="submit" class="et_pb_button">Sign in</button></p>
+        </form>
+        <p>New here? <a href="{% url 'accounts:register' %}">Create an account</a>.</p>
+    </div>
+</div>
+{% endblock %}
