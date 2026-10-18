@@ -54,9 +54,30 @@ def form_placeholder(request):
     return render(request, "core/form_placeholder.html")
 
 
-def search_stub(request):
-    """Search arrives in Phase 8."""
-    return render(request, "core/search_stub.html")
+def search(request):
+    """Site search (Phase 8): legacy corpus + published tutorials.
+
+    GET-only, CSL-safe by construction. args corrected: the query text only
+    ever reaches the template as escaped output; no user input is executed.
+    """
+    from tutorials.models import Tutorial
+    from .search_index import search_text
+
+    query = request.GET.get("s", "").strip()
+    legacy_results = search_text(query)[:20]
+    normalized = " ".join(query.split()).lower()
+    tutorial_results = []
+    if normalized:
+        for t in Tutorial.objects.filter(is_published=True):
+            hay = f"{t.title} {t.description} {t.slug}".lower()
+            if all(term in hay for term in normalized.split()):
+                tutorial_results.append(t)
+    return render(request, "core/search.html", {
+        "query": query,
+        "legacy_results": legacy_results,
+        "tutorials": tutorial_results[:10],
+        "searched": bool(query),
+    })
 
 
 # --- Sanitized legacy catch-all --------------------------------------------

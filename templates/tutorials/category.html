@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}{{ category.name }} — Tutorial Library{% endblock %}
+
+{% block body_class %}et_pb_pagebuilder_layout page-template-default single single-page{% endblock %}
+
+{% block content %}
+<div id="main-content">
+    <div class="container" style="padding-top:58px;">
+        <p><a href="{% url 'tutorials:list' %}">&larr; Back to the tutorial library</a></p>
+        <h1 style="padding-bottom:10px;">{{ category.name }}</h1>
+        {% if tutorials %}
+            {% include "tutorials/_grid.html" with tutorials=tutorials %}
+        {% else %}
+            <p>No tutorials in this category yet.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

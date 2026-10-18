@@ -14,22 +14,94 @@
         <p style="color:#666;">Estimated time: {{ tutorial.estimated_minutes }} minutes</p>
         {% endif %}
 
+        {% csrf_token %}
         <div id="tmt-player"
              data-authorize-url="{% url 'tutorials:authorize' tutorial.slug %}"
+             data-progress-url="{% url 'tutorials:progress' tutorial.slug %}"
              data-provider="{{ tutorial.video_provider }}"
+             data-duration="{{ tutorial.duration_seconds }}"
              {% if progress %}
              data-percent="{{ progress.percent }}"
              data-seconds-watched="{{ progress.seconds_watched }}"
+             data-completed="{{ progress.completed|yesno:'1,0' }}"
              {% endif %}
              style="min-height:120px;border:1px solid #e2e2e2;padding:16px;border-radius:3px;">
-            <p>Playback starts here (Phase 6 wires the real video provider).</p>
+            <p>Starting playback…</p>
         </div>
 
-        {% if progress %}
-        <p style="color:#666;padding-top:8px;">
-            Your progress: {{ progress.percent }}%{% if progress.completed %} — completed{% endif %}
+        <p id="tmt-progress-line" style="color:#666;padding-top:8px;">
+            {% if progress %}Your progress: {{ progress.percent }}%{% if progress.completed %} — completed{% endif %}{% endif %}
         </p>
-        {% endif %}
     </div>
 </div>
+{% endblock %}
+
+{% block page_scripts %}
+<script>
+(function () {
+    "use strict";
+    var player = document.getElementById("tmt-player");
+    if (!player) return;
+
+    var authUrl = player.dataset.authorizeUrl;
+    var progressUrl = player.dataset.progressUrl;
+    var duration = parseInt(player.dataset.duration || "0", 10);
+    var HEARTBEAT_SECONDS = 15;
+
+    // CSRF token from the rendered password-style hidden input.
+    var csrfInput = player.parentNode.querySelector("input[name=csrfmiddlewaretoken]")
+        || document.querySelector("input[name=csrfmiddlewaretoken]");
+    var headers = {"X-CSRFToken": csrfInput ? csrfInput.value : ""};
+
+    function postJson(url, body) {
+        var form = new URLSearchParams(body || {});
+        return fetch(url, {
+            method: "POST",
+            headers: headers,
+            body: form,
+            credentials: "same-origin",
+        }).then(function (r) { return r.json().then(function (j) { return {ok: r.ok, body: j}; }); });
+    }
+
+    // Stage A -> Stage B: authorize then redeem into a signed embed.
+    postJson(authUrl).then(function (res) {
+        if (!res.ok || !res.body.redeem_url) return;
+        return postJson(res.body.redeem_url, {token: res.body.token}).then(function (rr) {
+            if (!rr.ok) return;
+            var embedUrl = rr.body.embed_url || rr.body.url;
+            if (!embedUrl) return;
+            player.innerHTML = "";
+            var iframe = document.createElement("iframe");
+            iframe.src = embedUrl;
+            iframe.setAttribute("allowfullscreen", "true");
+            iframe.style.width = "100%";
+            iframe.style.height = "360px";
+            iframe.style.border = "0";
+            player.appendChild(iframe);
+            startHeartbeats();
+        });
+    });
+
+    // Watch heartbeats: only while the tab is visible; server clamps anyway.
+    var watched = parseInt(player.dataset.secondsWatched || "0", 10);
+    var done = player.dataset.completed === "1";
+    function startHeartbeats() {
+        if (!duration || done) return;
+        var idle = setInterval(function () {
+            if (document.visibilityState !== "visible") return;
+            postJson(progressUrl, {seconds: HEARTBEAT_SECONDS}).then(function (res) {
+                if (res.ok && res.body) {
+                    watched = res.body.seconds_watched;
+                    var line = document.getElementById("tmt-progress-line");
+                    if (line) {
+                        line.textContent = "Your progress: " + res.body.percent + "%"
+                            + (res.body.completed ? " — completed" : "");
+                    }
+                    if (res.body.completed && done === false) { done = true; clearInterval(idle); }
+                }
+            });
+        }, HEARTBEAT_SECONDS * 1000);
+    }
+})();
+</script>
 {% endblock %}

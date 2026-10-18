@@ -14,6 +14,8 @@ urlpatterns = [
     # Literal routes BEFORE the slug pattern — /tutorials/redeem/ must not be
     # swallowed by /tutorials/<slug>/ (which 404s as an unknown tutorial slug).
     path("redeem/", views.playback_redeem, name="redeem"),
+    path("category/<slug:slug>/", views.category_detail, name="category"),
+    path("<slug:slug>/progress/", views.progress_report, name="progress"),
     path("<slug:slug>/", views.tutorial_detail, name="detail"),
     path("<slug:slug>/authorize/", views.playback_authorize, name="authorize"),
 ]

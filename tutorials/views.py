@@ -10,6 +10,7 @@ import time
 
 from django.conf import settings
 from django.core.cache import cache
+from django.utils import timezone
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -17,7 +18,7 @@ from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_http_methods
 
 from .access import annotate_queryset, can_access, can_access_all
-from .models import Tutorial
+from .models import Category, Tutorial, TutorialProgress
 from .providers import bunny
 from accounts.models import User as UserModel
 
@@ -166,3 +167,72 @@ def playback_redeem(request):
         },
         status=200,
     )
+
+
+# --- Phase 8: progress reporting + category page ----------------------------
+
+MAX_SECONDS_PER_REPORT = 60  # per-request cap; a 1000s lie moves reality by 60
+COMPLETE_AT_PERCENT = 90  # industry-standard completion threshold
+
+
+@require_http_methods(["POST"])
+@csrf_protect
+def progress_report(request, slug):
+    """Accept client-side watch heartbeats (POST {seconds}).
+
+    Access first, numbers second: unauthorized/revoked users reporting get a
+    403 regardless of payload. seconds is clamped to [0, 60]; the payload
+    never accelerates beyond real wall-clock playback limits.
+    """
+    tutorial = get_object_or_404(Tutorial, slug=slug, is_published=True)
+    if not can_access(request.user, tutorial):
+        return JsonResponse({"detail": "No access."}, status=403)
+
+    raw = request.POST.get("seconds", "")
+    try:
+        seconds = int(raw) if raw else 0
+    except (TypeError, ValueError):
+        return JsonResponse({"detail": "seconds must be an integer."}, status=400)
+    if seconds < 0:
+        return JsonResponse({"detail": "seconds must be >= 0."}, status=400)
+    seconds = min(seconds, MAX_SECONDS_PER_REPORT)
+
+    progress, _ = TutorialProgress.objects.get_or_create(user=request.user, tutorial=tutorial)
+    progress.seconds_watched += seconds
+    progress.last_seen_at = timezone.now()
+    duration = tutorial.duration_seconds
+    if duration:
+        percent = min(100, round(progress.seconds_watched / duration * 100))
+    else:
+        percent = progress.percent
+    progress.percent = max(progress.percent, percent) if duration else progress.percent
+    just_completed = False
+    if duration and progress.percent >= COMPLETE_AT_PERCENT and not progress.completed:
+        progress.completed = True
+        progress.completed_at = timezone.now()
+        just_completed = True
+    progress.save()
+    return JsonResponse(
+        {
+            "percent": progress.percent,
+            "seconds_watched": progress.seconds_watched,
+            "completed": progress.completed,
+            "just_completed": just_completed,
+        },
+        status=200,
+    )
+
+
+def category_detail(request, slug):
+    """Published tutorials in one category, access-flag decorated.
+
+    The category itself is public data; contents are going through exactly
+    the same predicate as the main catalog (cosmetic annotations only).
+    """
+    category = get_object_or_404(Category, slug=slug)
+    library = _visible_library(request.user).filter(category=category)
+    return render(request, "tutorials/category.html", {
+        "category": category,
+        "tutorials": library,
+        "can_access_all": can_access_all(request.user),
+    })

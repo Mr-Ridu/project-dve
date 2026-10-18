@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Search{% endblock %}
+
+{% block content %}
+<div id="main-content">
+    <div class="container" style="padding-top:58px;">
+        <h1 style="padding-bottom:10px;">Search</h1>
+
+        <form method="get" action="{% url 'core:search' %}" style="margin-bottom:24px;">
+            <input type="text" name="s" value="{{ query }}" placeholder="Search the site" style="padding:6px;width:280px;" />
+            <button type="submit" class="et_pb_button" style="padding:6px 14px;">Go</button>
+        </form>
+
+        {% if searched %}
+            {% if tutorials or legacy_results %}
+                {% if tutorials %}
+                    <h2>Tutorials</h2>
+                    <ul>
+                        {% for t in tutorials %}
+                            <li><a href="{% url 'tutorials:detail' t.slug %}">{{ t.title }}</a></li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                {% if legacy_results %}
+                    <h2>Pages</h2>
+                    <ul style="margin-top:8px;">
+                        {% for r in legacy_results %}
+                            <li style="margin-bottom:10px;">
+                                <a href="/{{ r.slug }}/">{{ r.title|default:r.slug }}</a>
+                                <br /><small style="color:#666;">{{ r.snippet }}</small>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% else %}
+                <p>No results for “{{ query }}”.</p>
+            {% endif %}
+        {% else %}
+            <p>Type what you are looking for — tutorial titles, product pages, and everything in between.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
