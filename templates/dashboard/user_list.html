@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Users — Staff dashboard{% endblock %}
+
+{% block content %}
+<div id="main-content">
+    <div class="container" style="padding-top:58px;">
+        <h1 style="padding-bottom:10px;">Users</h1>
+        {% include "dashboard/_staffnav.html" %}
+
+        <form method="get">
+            <input type="text" name="q" value="{{ q }}" placeholder="Search username or email" />
+            <select name="status">
+                <option value="">All statuses</option>
+                {% for value, label in status_choices %}
+                    <option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="et_pb_button" style="padding:2px 10px;">Filter</button>
+        </form>
+
+        <table style="margin-top:16px;" border="1" cellpadding="6" cellspacing="0">
+            <tr><th>Username</th><th>Email</th><th>Status</th><th>Joined</th><th>All-library</th></tr>
+            {% for u in users %}
+                <tr>
+                    <td><a href="{% url 'dashboard:user_detail' u.pk %}">{{ u.username }}</a></td>
+                    <td>{{ u.email|default:"—" }}</td>
+                    <td>{{ u.get_approval_status_display }}</td>
+                    <td>{{ u.date_joined|date:"Y-m-d" }}</td>
+                    <td>{{ u.access_all_tutorials|yesno:"yes,no" }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+{% endblock %}

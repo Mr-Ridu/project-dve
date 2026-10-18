@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}{% if tutorial %}Edit{% else %}New{% endif %} tutorial — Staff dashboard{% endblock %}
+
+{% block content %}
+<div id="main-content">
+    <div class="container" style="padding-top:58px;">
+        <h1 style="padding-bottom:10px;">{% if tutorial %}Edit “{{ tutorial.title }}”{% else %}New tutorial{% endif %}</h1>
+        {% include "dashboard/_staffnav.html" %}
+        <form method="post" enctype="multipart/form-data" style="max-width:640px;">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="et_pb_button" style="margin-top:20px;">Save</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

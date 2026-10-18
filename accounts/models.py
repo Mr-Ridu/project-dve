@@ -68,6 +68,11 @@ class AuditEvent(models.Model):
         USER_REJECTED = "user_rejected", "User rejected"
         USER_RESET_PENDING = "user_reset_pending", "User reset to pending"
         ACCESS_FLAG_SET = "access_flag_set", "access_all_tutorials changed"
+        TUTORIAL_CREATED = "tutorial_created", "Tutorial created"
+        TUTORIAL_UPDATED = "tutorial_updated", "Tutorial updated"
+        TUTORIAL_DELETED = "tutorial_deleted", "Tutorial deleted"
+        ACCESS_GRANTED = "access_granted", "Per-tutorial access granted"
+        ACCESS_REVOKED = "access_revoked", "Per-tutorial access revoked"
 
     actor = models.ForeignKey(
         settings.AUTH_USER_MODEL,

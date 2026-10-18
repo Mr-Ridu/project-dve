@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Tutorials — Staff dashboard{% endblock %}
+
+{% block content %}
+<div id="main-content">
+    <div class="container" style="padding-top:58px;">
+        <h1 style="padding-bottom:10px;">Tutorials</h1>
+        {% include "dashboard/_staffnav.html" %}
+        <p><a class="et_pb_button" style="padding:4px 14px;" href="{% url 'dashboard:tutorial_create' %}">+ New tutorial</a></p>
+
+        <table border="1" cellpadding="6" cellspacing="0" style="margin-top:10px;">
+            <tr><th>Title</th><th>Category</th><th>Provider</th><th>State</th><th>Grants</th><th>Completed</th><th></th></tr>
+            {% for t in tutorials %}
+                <tr>
+                    <td>{{ t.title }}</td>
+                    <td>{{ t.category|default:"—" }}</td>
+                    <td>{{ t.get_video_provider_display }}</td>
+                    <td>{{ t.is_published|yesno:"published,draft" }}</td>
+                    <td>{{ t.grant_count }}</td>
+                    <td>{{ t.completed_count }}</td>
+                    <td>
+                        <a href="{% url 'dashboard:tutorial_edit' t.pk %}">Edit</a> ·
+                        <form method="post" action="{% url 'dashboard:tutorial_delete' t.pk %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" style="border:none;background:none;color:#a00;cursor:pointer;">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+{% endblock %}

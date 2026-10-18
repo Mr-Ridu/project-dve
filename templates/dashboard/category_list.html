@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Categories — Staff dashboard{% endblock %}
+
+{% block content %}
+<div id="main-content">
+    <div class="container" style="padding-top:58px;">
+        <h1 style="padding-bottom:10px;">Categories</h1>
+        {% include "dashboard/_staffnav.html" %}
+
+        <form method="post" style="margin:14px 0;">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="et_pb_button" style="padding:4px 14px;">Add category</button>
+        </form>
+
+        <table border="1" cellpadding="6" cellspacing="0">
+            <tr><th>Name</th><th>Slug</th><th>Ordering</th><th>Tutorials</th><th></th></tr>
+            {% for c in categories %}
+                <tr>
+                    <td>{{ c.name }}</td>
+                    <td>{{ c.slug }}</td>
+                    <td>{{ c.ordering }}</td>
+                    <td>{{ c.tutorial_count }}</td>
+                    <td>
+                        <form method="post" action="{% url 'dashboard:category_delete' c.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" style="border:none;background:none;color:#a00;cursor:pointer;">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+{% endblock %}
