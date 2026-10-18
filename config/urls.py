@@ -13,6 +13,10 @@ urlpatterns = [
     path("", include("core.urls")),
 ]
 
+# Custom 404 (templates/404.html) — used whenever DEBUG is False.
+handler404 = "core.views.page_not_found"
+handler500 = "core.views.page_not_found"
+
 # Development convenience only: runserver serves uploaded media.
 # In production media must NOT be publicly mapped (see docs/PHASE1_INSPECTION_REPORT.md §9).
 if settings.DEBUG:
