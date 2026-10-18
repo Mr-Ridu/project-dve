@@ -1,0 +1,7 @@
+# Runtime dependencies — Phase 2
+# Install with: .venv/Scripts/python -m pip install -r requirements.txt
+Django==5.2.17
+
+# Added in Phase 10 (deployment), after the host confirms its MySQL version:
+# mysqlclient>=2.2     # preferred MySQL driver on cPanel; needs compiler on some hosts
+# PyMySQL>=1.1         # pure-Python fallback if mysqlclient cannot be installed

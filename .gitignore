@@ -1,0 +1,16 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+
+# Local database and secrets
+db.sqlite3
+.env
+
+# Collected static files and uploaded media (regenerated / server-side)
+staticfiles/
+media/
+
+# Logs and workspace metadata
+*.log
+.freebuff/

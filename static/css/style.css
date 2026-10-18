@@ -1,0 +1,41 @@
+/* 
+ Theme Name:   Xstrahl
+ Theme URI:    
+ Description:  Divi child theme
+ Author:       Rich Stern
+ Author URI:   https://zjstech.com
+ Template:     Divi
+ Version:      1.0
+
+ /* == Add your own styles below this line ==
+--------------------------------------------*/
+
+/* Universal focus style for all keyboard-navigable elements */
+a:focus,
+button:focus,
+input:focus,
+textarea:focus,
+select:focus,
+[tabindex]:focus {
+  outline: 2px solid #F6F5F2; 
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+/* == Techno Mate Technologies branding — square logo sizing ==
+   The original logo was a wide lockup (90x30 in the header); the new mark is
+   square, so every logo slot is sized by height to keep the layout stable. */
+#header-desktop-menu-v2 .et_pb_menu_inner_container > .et_pb_menu__logo-wrap .et_pb_menu__logo img { width: auto; height: 44px; }
+#mobile-nav-1 .et_pb_menu_inner_container > .et_pb_menu__logo-wrap .et_pb_menu__logo img { width: auto; height: 32px; }
+#mobile-nav-2 .et_pb_menu_inner_container > .et_pb_menu__logo-wrap .et_pb_menu__logo img { width: auto; height: 32px; }
+.et_pb_image_0_tb_footer img { width: auto; height: 56px; }
+.et_pb_image_1_tb_footer img { width: auto; height: 56px; }
+
+/* Industry strip (Pharma & Biotech | Plant & Machinery | Energy & Power |
+   Steel & Metal | Robotic & Automation) — tightened so all five fit one line. */
+#desktop-secondary-menu-section #menu-secondary-header-menu > li { padding-left: 6px; padding-right: 6px; }
+#desktop-secondary-menu-section #menu-secondary-header-menu > li > a { font-size: 15px; }
+
+/* Footer address block — same geometry as the phone/email modules above it:
+   pulled one column left, auto width expands it to two columns. Resets to
+   normal flow under 980px via the theme's own `footer .et_pb_module` rule. */
+.et_pb_text_address_tb_footer { margin-left: -100%; font-size: 13px; line-height: 1.55; margin-bottom: 12px; }
