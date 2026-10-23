@@ -119,6 +119,7 @@ var uet_tag_data = {"uet_tag_id":"187008855","enableAutoSpaTracking":"false"};
 <link rel='stylesheet' id='mediaelement-css' href="{% static 'css/mediaelementplayer-legacy.min.css' %}" media='all' />
 {# Phase 9 accessibility overrides — must load after the Divi stylesheets #}
 <link rel='stylesheet' id='site-a11y-css' href="{% static 'css/site-a11y.css' %}" media='all' />
+<link rel='stylesheet' id='site-utility-css' href="{% static 'css/site-utility.css' %}" media='all' />
 <link rel='stylesheet' id='wp-mediaelement-css' href="{% static 'css/js-mediaelement-wp-mediaelement.min-2.css' %}" media='all' />
     {% block extra_head %}{% endblock %}
 </head>
@@ -126,6 +127,7 @@ var uet_tag_data = {"uet_tag_id":"187008855","enableAutoSpaTracking":"false"};
 
 {# Phase 9: first focusable element — keyboard users can skip the menus (WCAG 2.4.1) #}
 <a class="skip-to-content" href="#site-main">Skip to main content</a>
+{% include "partials/utility_bar.html" %}
 
 <div id="page-container">
 <div id="et-boc" class="et-boc">

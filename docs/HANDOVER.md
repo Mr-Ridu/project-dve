@@ -24,8 +24,22 @@ python manage.py runserver
 ```
 
 * Site: <http://127.0.0.1:8000/>
+* Tutorial library: `/tutorials/` — linked from the dark utility bar at the top
+  of every page, together with **Sign in / Create account / Sign out**
 * Staff dashboard: `/dashboard/` (needs `is_staff`)
-* Tutorial library: `/tutorials/`
+* Django admin: `/admin/` — all models registered (users, audit log, categories,
+  tutorials with grant/progress inlines, grants, progress). Superusers are
+  approved automatically, so `createsuperuser` can watch immediately
+
+A fresh database has no tutorials, which looks like a broken frontend. Seed one:
+
+```bash
+python manage.py seed_demo --username <your-username>
+```
+
+That publishes a sample tutorial using the plain-URL player and grants it to
+the named account (approving it if needed). It refuses to run with
+`DEBUG=False`.
 * Settings: `config/settings/dev.py` by default; production imports
   `config/settings/prod.py` and refuses to start without `DJANGO_SECRET_KEY`
   and `DJANGO_ALLOWED_HOSTS`.
@@ -134,6 +148,8 @@ work and was deliberately left alone.
   which is intentionally not a runtime dependency.
 * **Search**: the legacy corpus is read once per process, capped at ~400 KB of
   body text per page (documented in `core/search_index.py`).
+* **Content**: staff create tutorials in `/dashboard/tutorials/` or `/admin/`.
+  `is_published` off means a hard 404 for everyone, grants included.
 * **Cron**: `clearsessions` daily; nothing else is required. There is no Celery
   or background worker, by design — cPanel cannot run one.
 

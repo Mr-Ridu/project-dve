@@ -49,6 +49,19 @@ class User(AbstractUser):
             and self.approval_status == self.ApprovalStatus.APPROVED
         )
 
+    def save(self, *args, **kwargs):
+        """A superuser is trusted by definition: never leave one pending.
+
+        `createsuperuser` and the admin's add form otherwise produce an account
+        that can log in but cannot open a single tutorial, which looks like a
+        broken site rather than a permission rule.
+        """
+        if self.is_superuser and self.approval_status == self.ApprovalStatus.PENDING:
+            self.approval_status = self.ApprovalStatus.APPROVED
+            if not self.approved_at:
+                self.approved_at = timezone.now()
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f"{self.username} ({self.get_approval_status_display()})"
 
