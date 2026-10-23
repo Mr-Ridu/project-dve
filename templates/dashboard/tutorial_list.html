@@ -10,7 +10,7 @@
         <p><a class="et_pb_button" style="padding:4px 14px;" href="{% url 'dashboard:tutorial_create' %}">+ New tutorial</a></p>
 
         <table border="1" cellpadding="6" cellspacing="0" style="margin-top:10px;">
-            <tr><th>Title</th><th>Category</th><th>Provider</th><th>State</th><th>Grants</th><th>Completed</th><th></th></tr>
+            <tr><th scope="col">Title</th><th scope="col">Category</th><th scope="col">Provider</th><th scope="col">State</th><th scope="col">Grants</th><th scope="col">Completed</th><th scope="col"></th></tr>
             {% for t in tutorials %}
                 <tr>
                     <td>{{ t.title }}</td>

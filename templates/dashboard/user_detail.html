@@ -40,7 +40,7 @@
             <p>All-library flag is ON — every published tutorial is open for this account.</p>
         {% endif %}
         <table border="1" cellpadding="6" cellspacing="0">
-            <tr><th>Tutorial</th><th>Granted</th><th>Action</th></tr>
+            <tr><th scope="col">Tutorial</th><th scope="col">Granted</th><th scope="col">Action</th></tr>
             {% for t in tutorials %}
                 <tr>
                     <td>{{ t.title }}</td>

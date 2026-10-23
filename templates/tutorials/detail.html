@@ -73,6 +73,8 @@
             player.innerHTML = "";
             var iframe = document.createElement("iframe");
             iframe.src = embedUrl;
+            // WCAG 4.1.2: iframes need an accessible name.
+            iframe.title = "Tutorial video: " + document.title;
             iframe.setAttribute("allowfullscreen", "true");
             iframe.style.width = "100%";
             iframe.style.height = "360px";

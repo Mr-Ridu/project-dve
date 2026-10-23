@@ -5,7 +5,10 @@ tutorials.access.can_access() — and is re-evaluated on *every* protected
 request; progress state is never treated as proof of authorization.
 """
 from django.conf import settings
+from django.core.validators import FileExtensionValidator
 from django.db import models
+
+from .validators import THUMBNAIL_EXTENSIONS, validate_thumbnail_size
 
 
 class Category(models.Model):
@@ -29,9 +32,14 @@ class Tutorial(models.Model):
     title = models.CharField(max_length=200)
     slug = models.SlugField(max_length=220, unique=True)
     description = models.TextField(blank=True)
-    # FileField (not ImageField) keeps the dependency list Pillow-free;
-    # thumbnails are just linked assets until Phase 9's optimization pass.
-    thumbnail = models.FileField(upload_to="tutorial_thumbs/", blank=True)
+    # FileField (not ImageField) keeps the dependency list Pillow-free; the
+    # Phase 9 optimization pass works offline on the uploaded file.
+    # Staff-only uploads still get an extension allow-list and a size cap.
+    thumbnail = models.FileField(
+        upload_to="tutorial_thumbs/",
+        blank=True,
+        validators=[FileExtensionValidator(THUMBNAIL_EXTENSIONS), validate_thumbnail_size],
+    )
     category = models.ForeignKey(
         Category, null=True, blank=True, on_delete=models.SET_NULL, related_name="tutorials"
     )

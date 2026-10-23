@@ -9,8 +9,10 @@
         {% include "dashboard/_staffnav.html" %}
 
         <form method="get">
-            <input type="text" name="q" value="{{ q }}" placeholder="Search username or email" />
-            <select name="status">
+            <label for="user-q" class="screen-reader-text">Search username or email</label>
+            <input id="user-q" type="search" name="q" value="{{ q }}" placeholder="Search username or email" />
+            <label for="user-status" class="screen-reader-text">Account status</label>
+            <select id="user-status" name="status">
                 <option value="">All statuses</option>
                 {% for value, label in status_choices %}
                     <option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ label }}</option>
@@ -20,7 +22,7 @@
         </form>
 
         <table style="margin-top:16px;" border="1" cellpadding="6" cellspacing="0">
-            <tr><th>Username</th><th>Email</th><th>Status</th><th>Joined</th><th>All-library</th></tr>
+            <tr><th scope="col">Username</th><th scope="col">Email</th><th scope="col">Status</th><th scope="col">Joined</th><th scope="col">All-library</th></tr>
             {% for u in users %}
                 <tr>
                     <td><a href="{% url 'dashboard:user_detail' u.pk %}">{{ u.username }}</a></td>

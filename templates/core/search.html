@@ -8,7 +8,8 @@
         <h1 style="padding-bottom:10px;">Search</h1>
 
         <form method="get" action="{% url 'core:search' %}" style="margin-bottom:24px;">
-            <input type="text" name="s" value="{{ query }}" placeholder="Search the site" style="padding:6px;width:280px;" />
+            <label for="site-search" class="screen-reader-text">Search the site</label>
+            <input id="site-search" type="search" name="s" value="{{ query }}" placeholder="Search the site" style="padding:6px;width:280px;max-width:100%;" />
             <button type="submit" class="et_pb_button" style="padding:6px 14px;">Go</button>
         </form>
 
