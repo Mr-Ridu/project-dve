@@ -135,4 +135,31 @@ MEDIA_ROOT = BASE_DIR / "media"
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
 FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
 
+# --- Video signing (Phase 6 provider, Phase 10 wiring) -----------------------
+# Bunny Stream keys live in the environment, never in the repository. Empty
+# values mean "not configured yet": the playback endpoint answers 503 rather
+# than handing out an unsigned embed.
+BUNNY_STREAM_LIBRARY_ID = os.environ.get("BUNNY_STREAM_LIBRARY_ID", "")
+BUNNY_STREAM_SECURITY_KEY = os.environ.get("BUNNY_STREAM_SECURITY_KEY", "")
+
+# --- Cache -------------------------------------------------------------------
+# The playback handshake stores a one-time token in the cache. LocMem is
+# per-process, so on a host with several workers the redeem request can land on
+# a worker that never saw the token. Development uses LocMem; production
+# overrides this with the shared database cache (see prod.py).
+if os.environ.get("DJANGO_CACHE_BACKEND", "locmem").strip().lower() == "database":
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+            "LOCATION": "django_cache",
+        }
+    }
+else:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "tmt-locmem",
+        }
+    }
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

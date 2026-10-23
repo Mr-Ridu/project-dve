@@ -38,6 +38,19 @@ SECURE_HSTS_SECONDS = int(os.environ.get("DJANGO_HSTS_SECONDS", "0"))  # noqa: F
 # cPanel/Passenger often sits behind a proxy that terminates TLS.
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
+# --- Shared cache -----------------------------------------------------------
+# Passenger runs several workers; the playback handshake token must be visible
+# to whichever worker handles the redeem step. Default to the database cache
+# (create it once with `manage.py createcachetable`). Set
+# DJANGO_CACHE_BACKEND=locmem only on a genuinely single-worker host.
+if os.environ.get("DJANGO_CACHE_BACKEND", "database").strip().lower() != "locmem":  # noqa: F405
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+            "LOCATION": "django_cache",
+        }
+    }
+
 # Server-friendly logging to stderr (cPanel captures it in the app log).
 LOGGING = {
     "version": 1,
