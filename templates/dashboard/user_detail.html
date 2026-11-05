@@ -1,75 +1,120 @@
 {% extends "base.html" %}
 
-{% block title %}{{ target_user.username }} — Staff dashboard{% endblock %}
+{% block title %}{{ target_user.username }} | Staff dashboard{% endblock %}
 
 {% block content %}
-<div id="main-content">
-    <div class="container" style="padding-top:58px;">
-        <h1 style="padding-bottom:10px;">{{ target_user.username }}</h1>
-        {% include "dashboard/_staffnav.html" %}
-        <p>
-            Email: {{ target_user.email|default:"—" }} ·
-            Status: <strong>{{ target_user.get_approval_status_display }}</strong> ·
-            Signed up: {{ target_user.date_joined|date:"Y-m-d H:i" }} ·
-            access_all_tutorials: <strong>{{ target_user.access_all_tutorials|yesno:"yes,no" }}</strong>
-        </p>
-
-        {% if target_user.pk == request.user.pk %}
-            <p><em>This is your own account — approval actions on yourself are blocked.</em></p>
-        {% else %}
-        <form method="post" action="{% url 'dashboard:user_approval' target_user.pk 'approve' %}" style="display:inline;">
-            {% csrf_token %}
-            <button type="submit" class="et_pb_button">Approve</button>
-        </form>
-        <form method="post" action="{% url 'dashboard:user_approval' target_user.pk 'reject' %}" style="display:inline;">
-            {% csrf_token %}
-            <button type="submit" class="et_pb_button">Reject</button>
-        </form>
-        <form method="post" action="{% url 'dashboard:user_approval' target_user.pk 'reset_pending' %}" style="display:inline;">
-            {% csrf_token %}
-            <button type="submit" class="et_pb_button">Reset to pending</button>
-        </form>
-        <form method="post" action="{% url 'dashboard:user_access_flag' target_user.pk %}" style="display:inline;">
-            {% csrf_token %}
-            <button type="submit" class="et_pb_button">Toggle all-library access</button>
-        </form>
-        {% endif %}
-
-        <h2>Per-tutorial access</h2>
-        {% if target_user.access_all_tutorials %}
-            <p>All-library flag is ON — every published tutorial is open for this account.</p>
-        {% endif %}
-        <table border="1" cellpadding="6" cellspacing="0">
-            <tr><th scope="col">Tutorial</th><th scope="col">Granted</th><th scope="col">Action</th></tr>
-            {% for t in tutorials %}
-                <tr>
-                    <td>{{ t.title }}</td>
-                    <td>{% if t.pk in grants %}yes{% else %}no{% endif %}</td>
-                    <td>
-                        {% if t.pk in grants %}
-                        <form method="post" action="{% url 'dashboard:revoke' target_user.pk t.pk %}">
-                            {% csrf_token %}
-                            <button type="submit" class="et_pb_button" style="padding:2px 10px;">Revoke</button>
-                        </form>
-                        {% else %}
-                        <form method="post" action="{% url 'dashboard:grant' target_user.pk t.pk %}">
-                            {% csrf_token %}
-                            <button type="submit" class="et_pb_button" style="padding:2px 10px;">Grant</button>
-                        </form>
-                        {% endif %}
-                    </td>
-                </tr>
-            {% endfor %}
-        </table>
-
-        <h2>Progress</h2>
-        <ul>
-        {% for p in progress %}
-            <li>{{ p.tutorial.title }} — {{ p.percent }}%{% if p.completed %} (completed{% if p.completed_at %} {{ p.completed_at|date:"Y-m-d" }}{% endif %}){% endif %}</li>
-        {% empty %}
-            <li>No watch activity recorded.</li>
-        {% endfor %}
-        </ul>
+<section class="bg-brand text-white">
+  <div class="mx-auto max-w-6xl px-4 py-12">
+    <p class="text-sm font-bold uppercase tracking-wider text-accent">
+      <a href="{% url 'dashboard:user_list' %}" class="hover:underline">Users</a> / {{ target_user.username }}
+    </p>
+    <h1 class="mt-2 text-3xl font-bold md:text-4xl">{{ target_user.username }}</h1>
+    <div class="mt-4 flex flex-wrap gap-x-8 gap-y-2 text-sm text-white/85">
+      <p>Email: {{ target_user.email|default:"—" }}</p>
+      <p>Status: <strong class="text-accent">{{ target_user.get_approval_status_display }}</strong></p>
+      <p>Signed up: {{ target_user.date_joined|date:"Y-m-d H:i" }}</p>
+      <p>All-library: <strong class="text-accent">{{ target_user.access_all_tutorials|yesno:"yes,no" }}</strong></p>
     </div>
+  </div>
+</section>
+
+<div class="mx-auto max-w-6xl px-4 py-12">
+  {% include "dashboard/_staffnav.html" %}
+
+  {% if target_user.pk == request.user.pk %}
+  <p class="border-l-4 border-accent bg-neutral-50 px-4 py-3 text-sm text-neutral-700">This is your own account — approval actions on yourself are blocked.</p>
+  {% else %}
+  <div class="flex flex-wrap gap-3">
+    <form method="post" action="{% url 'dashboard:user_approval' target_user.pk 'approve' %}">
+      {% csrf_token %}
+      <button type="submit" class="cursor-pointer rounded bg-accent px-6 py-2 text-sm font-bold uppercase text-brand hover:opacity-90">Approve</button>
+    </form>
+    <form method="post" action="{% url 'dashboard:user_approval' target_user.pk 'reject' %}">
+      {% csrf_token %}
+      <button type="submit" class="cursor-pointer rounded border border-neutral-300 px-6 py-2 text-sm font-bold uppercase text-brand hover:border-accent">Reject</button>
+    </form>
+    <form method="post" action="{% url 'dashboard:user_approval' target_user.pk 'reset_pending' %}">
+      {% csrf_token %}
+      <button type="submit" class="cursor-pointer rounded border border-neutral-300 px-6 py-2 text-sm font-bold uppercase text-brand hover:border-accent">Reset to pending</button>
+    </form>
+    <form method="post" action="{% url 'dashboard:user_access_flag' target_user.pk %}">
+      {% csrf_token %}
+      <button type="submit" class="cursor-pointer rounded border border-neutral-300 px-6 py-2 text-sm font-bold uppercase text-brand hover:border-accent">Toggle all-library access</button>
+    </form>
+  </div>
+  {% endif %}
+
+  <section class="mt-12">
+    <h2 class="text-xl font-bold text-brand">Per-tutorial access</h2>
+    {% if target_user.access_all_tutorials %}
+    <p class="mt-2 text-sm text-neutral-700">All-library flag is ON — every published tutorial is open for this account.</p>
+    {% endif %}
+    <div class="mt-6 overflow-x-auto border border-neutral-200">
+      <table class="w-full text-left text-sm">
+        <thead class="bg-neutral-100 text-xs font-bold uppercase tracking-wider text-neutral-500">
+          <tr>
+            <th scope="col" class="px-4 py-3">Tutorial</th>
+            <th scope="col" class="px-4 py-3">Granted</th>
+            <th scope="col" class="px-4 py-3">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in tutorials %}
+          <tr class="border-t border-neutral-200">
+            <td class="px-4 py-3 text-brand">{{ t.title }}</td>
+            <td class="px-4 py-3 text-neutral-700">{% if t.pk in grants %}yes{% else %}no{% endif %}</td>
+            <td class="px-4 py-3">
+              {% if t.pk in grants %}
+              <form method="post" action="{% url 'dashboard:revoke' target_user.pk t.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="cursor-pointer rounded border border-neutral-300 px-4 py-1 text-xs font-bold uppercase text-brand hover:border-accent">Revoke</button>
+              </form>
+              {% else %}
+              <form method="post" action="{% url 'dashboard:grant' target_user.pk t.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="cursor-pointer rounded bg-accent px-4 py-1 text-xs font-bold uppercase text-brand hover:opacity-90">Grant</button>
+              </form>
+              {% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="3" class="px-4 py-8 text-center text-neutral-500">No published tutorials yet.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="mt-12">
+    <h2 class="text-xl font-bold text-brand">Progress</h2>
+    <div class="mt-6 overflow-x-auto border border-neutral-200">
+      <table class="w-full text-left text-sm">
+        <thead class="bg-neutral-100 text-xs font-bold uppercase tracking-wider text-neutral-500">
+          <tr>
+            <th scope="col" class="px-4 py-3">Tutorial</th>
+            <th scope="col" class="px-4 py-3">Watched</th>
+            <th scope="col" class="px-4 py-3">Completed</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in progress %}
+          <tr class="border-t border-neutral-200">
+            <td class="px-4 py-3 text-brand">{{ p.tutorial.title }}</td>
+            <td class="px-4 py-3 text-neutral-700">{{ p.percent }}%</td>
+            <td class="px-4 py-3 text-neutral-700">
+              {% if p.completed %}yes{% if p.completed_at %} ({{ p.completed_at|date:"Y-m-d" }}){% endif %}{% else %}—{% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="3" class="px-4 py-8 text-center text-neutral-500">No watch activity recorded.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
 </div>
 {% endblock %}

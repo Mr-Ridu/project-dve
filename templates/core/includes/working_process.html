@@ -1,0 +1,78 @@
+{% load static %}
+<section class="wp-steps">
+  <style>
+    .wp-steps{background:#fff;padding:72px 20px 0;color:#363940;}
+    .wp-steps .wp-inner{max-width:1400px;margin:0 auto;}
+    .wp-steps .wp-eyebrow{font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#8a4d9f;text-align:center;margin:0;}
+    .wp-steps h2{font-size:30px;line-height:1.25;font-weight:300;text-align:center;color:#190321;margin:10px 0 28px;}
+    .wp-steps .wp-tabs{display:flex;justify-content:center;gap:0;margin:0 auto 48px;flex-wrap:wrap;}
+    .wp-steps .wp-tab{background:#f3f2f4;border:1px solid #f3f2f4;padding:12px 26px;font-size:14px;color:#190321;cursor:pointer;font-family:inherit;}
+    .wp-steps .wp-tab[aria-selected="true"]{background:#190321;border-color:#190321;color:#fff;}
+    .wp-steps .wp-body{display:grid;grid-template-columns:1fr 1fr;gap:48px;max-width:1200px;margin:0 auto;align-items:center;padding-bottom:72px;}
+    .wp-steps .wp-panel[hidden]{display:none;}
+    .wp-steps .wp-step{font-size:12px;font-weight:700;letter-spacing:2px;color:#8a4d9f;text-transform:uppercase;margin:0 0 12px;}
+    .wp-steps .wp-panel h3{font-size:30px;line-height:1.25;font-weight:300;color:#190321;margin:0 0 18px;}
+    .wp-steps .wp-panel p.wp-copy{font-size:16px;line-height:1.7;color:#363940;margin:0;max-width:34em;}
+    .wp-steps .wp-media{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;}
+    @media (max-width:768px){
+      .wp-steps .wp-body{grid-template-columns:1fr;}
+      .wp-steps h2{font-size:26px;}
+      .wp-steps .wp-panel h3{font-size:24px;}
+    }
+  </style>
+
+  <div class="wp-inner">
+    <p class="wp-eyebrow">What we offer</p>
+    <h2>How we work</h2>
+
+    <div class="wp-tabs" role="tablist" aria-label="Working process">
+      <button type="button" class="wp-tab" role="tab" aria-selected="false" data-tab="0">Discover</button>
+      <button type="button" class="wp-tab" role="tab" aria-selected="false" data-tab="1">Specify</button>
+      <button type="button" class="wp-tab" role="tab" aria-selected="true" data-tab="2">Deliver &amp; support</button>
+    </div>
+
+    <div class="wp-body">
+      <div class="wp-panel" data-panel="0" hidden>
+        <p class="wp-step">Step 1</p>
+        <h3>Understanding the process</h3>
+        <p class="wp-copy">We start with what you need to produce, the throughput you are planning for and the constraints
+          of the site. That tells us which equipment and configuration actually fits &mdash; before anything is specified.</p>
+      </div>
+      <div class="wp-panel" data-panel="1" hidden>
+        <p class="wp-step">Step 2</p>
+        <h3>Specifying the equipment</h3>
+        <p class="wp-copy">We match the machine to the duty, agree utilities and layout, and set out the scope, lead time
+          and support package in a clear quotation. No surprises after the order.</p>
+      </div>
+      <div class="wp-panel" data-panel="2">
+        <p class="wp-step">Step 3</p>
+        <h3>Delivery, installation and support</h3>
+        <p class="wp-copy">Equipment arrives, is installed and commissioned with your team, and is handed over with
+          training. From then on, planned maintenance, genuine spares and technical support keep the line running.</p>
+      </div>
+      <img class="wp-media" src="{% static 'images/products/plant.jpg' %}" alt="Industrial production floor with cranes and machinery" loading="lazy">
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var root = document.querySelector(".wp-steps");
+      if (!root) return;
+      var tabs = root.querySelectorAll(".wp-tab");
+      var panels = root.querySelectorAll(".wp-panel");
+      function show(index) {
+        for (var i = 0; i < tabs.length; i++) {
+          tabs[i].setAttribute("aria-selected", String(i === index));
+        }
+        for (var j = 0; j < panels.length; j++) {
+          panels[j].hidden = Number(panels[j].getAttribute("data-panel")) !== index;
+        }
+      }
+      for (var k = 0; k < tabs.length; k++) {
+        tabs[k].addEventListener("click", function (event) {
+          show(Number(event.currentTarget.getAttribute("data-tab")));
+        });
+      }
+    })();
+  </script>
+</section>

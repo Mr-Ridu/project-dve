@@ -8,6 +8,14 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 
+FIELD_CLASS = "mt-1 w-full border border-neutral-300 px-3 py-2"
+
+
+def _style_fields(form):
+    """Apply the site's input styling so forms match the rest of the site."""
+    for field in form.fields.values():
+        field.widget.attrs.setdefault("class", FIELD_CLASS)
+
 
 class LoginForm(AuthenticationForm):
     """Stock AuthenticationForm with friendlier markup hooks."""
@@ -15,6 +23,7 @@ class LoginForm(AuthenticationForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["username"].widget.attrs.update({"autofocus": True})
+        _style_fields(self)
 
 
 class RegistrationForm(UserCreationForm):
@@ -27,6 +36,10 @@ class RegistrationForm(UserCreationForm):
     class Meta:
         model = get_user_model()
         fields = ("username", "first_name", "last_name", "email")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        _style_fields(self)
 
     def clean_email(self):
         email = self.cleaned_data["email"].lower()

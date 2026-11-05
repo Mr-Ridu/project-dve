@@ -1,109 +1,95 @@
 {% extends "base.html" %}
 
-{% block title %}{{ tutorial.title }}{% endblock %}
-
-{% block body_class %}et_pb_pagebuilder_layout page-template-default single single-page{% endblock %}
+{% block title %}{{ tutorial.title }} | {{ company.name }}{% endblock %}
 
 {% block content %}
-<div id="main-content">
-    <div class="container" style="padding-top:58px;">
-        <p><a href="{% url 'tutorials:list' %}">&larr; Back to the tutorial library</a></p>
-        <h1 style="padding-bottom:10px;">{{ tutorial.title }}</h1>
-        {% if tutorial.description %}<p>{{ tutorial.description }}</p>{% endif %}
-        {% if tutorial.estimated_minutes %}
-        <p style="color:#666;">Estimated time: {{ tutorial.estimated_minutes }} minutes</p>
-        {% endif %}
+<section class="bg-brand text-white">
+  <div class="mx-auto max-w-6xl px-4 py-16">
+    <p class="text-sm font-bold uppercase tracking-wider text-accent"><a href="{% url 'tutorials:list' %}" class="hover:underline">Tutorials</a>{% if tutorial.category %} / {{ tutorial.category.name }}{% endif %}</p>
+    <h1 class="mt-3 text-4xl font-bold md:text-5xl">{{ tutorial.title }}</h1>
+  </div>
+</section>
 
-        {% csrf_token %}
-        <div id="tmt-player"
-             data-authorize-url="{% url 'tutorials:authorize' tutorial.slug %}"
-             data-progress-url="{% url 'tutorials:progress' tutorial.slug %}"
-             data-provider="{{ tutorial.video_provider }}"
-             data-duration="{{ tutorial.duration_seconds }}"
-             {% if progress %}
-             data-percent="{{ progress.percent }}"
-             data-seconds-watched="{{ progress.seconds_watched }}"
-             data-completed="{{ progress.completed|yesno:'1,0' }}"
-             {% endif %}
-             style="min-height:120px;border:1px solid #e2e2e2;padding:16px;border-radius:3px;">
-            <p>Starting playback…</p>
-        </div>
+<section class="mx-auto max-w-4xl px-4 py-16">
+  {% if tutorial.description %}<p class="text-lg text-neutral-700">{{ tutorial.description }}</p>{% endif %}
 
-        <p id="tmt-progress-line" style="color:#666;padding-top:8px;">
-            {% if progress %}Your progress: {{ progress.percent }}%{% if progress.completed %} — completed{% endif %}{% endif %}
-        </p>
-    </div>
-</div>
-{% endblock %}
+  {% if tutorial.video_provider == "none" %}
+  <p class="mt-8 border border-neutral-200 p-6 text-neutral-700">The video for this tutorial is not available yet.</p>
+  {% else %}
+  <div id="player" class="mt-8 aspect-video w-full select-none bg-neutral-100 flex items-center justify-center text-neutral-600"
+       data-authorize-url="{% url 'tutorials:authorize' tutorial.slug %}"
+       data-progress-url="{% url 'tutorials:progress' tutorial.slug %}"
+       data-player-title="{{ tutorial.title|escapejs }}"
+       data-csrf="{{ csrf_token }}">
+    <button type="button" id="play-button" class="rounded bg-accent px-6 py-2 text-sm font-bold uppercase text-brand hover:opacity-90">Play tutorial</button>
+  </div>
+  <p id="player-status" class="mt-3 text-sm text-neutral-600" role="status"></p>
+  {% endif %}
 
-{% block page_scripts %}
+  {% if progress %}
+  <p class="mt-6 text-sm text-neutral-700">Your progress: {{ progress.percent }}%{% if progress.completed %} (completed){% endif %}</p>
+  {% endif %}
+</section>
+
+{% if tutorial.video_provider != "none" %}
 <script>
 (function () {
-    "use strict";
-    var player = document.getElementById("tmt-player");
-    if (!player) return;
+  var player = document.getElementById("player");
+  var button = document.getElementById("play-button");
+  var status = document.getElementById("player-status");
+  if (!player || !button) return;
 
-    var authUrl = player.dataset.authorizeUrl;
-    var progressUrl = player.dataset.progressUrl;
-    var duration = parseInt(player.dataset.duration || "0", 10);
-    var HEARTBEAT_SECONDS = 15;
+  // Right-click "copy/save video address" and drag-to-desktop are the cheapest
+  // ways to lift a file we host ourselves. Blocking them on our own container
+  // works for the <video> player; inside a cross-origin YouTube iframe the
+  // browser gives the page no say, so the menu there is YouTube's own.
+  player.addEventListener("contextmenu", function (event) { event.preventDefault(); });
+  player.addEventListener("dragstart", function (event) { event.preventDefault(); });
 
-    // CSRF token from the rendered password-style hidden input.
-    var csrfInput = player.parentNode.querySelector("input[name=csrfmiddlewaretoken]")
-        || document.querySelector("input[name=csrfmiddlewaretoken]");
-    var headers = {"X-CSRFToken": csrfInput ? csrfInput.value : ""};
+  function post(url, data) {
+    var body = new FormData();
+    body.append("csrfmiddlewaretoken", player.dataset.csrf);
+    Object.keys(data || {}).forEach(function (k) { body.append(k, data[k]); });
+    return fetch(url, { method: "POST", body: body, credentials: "same-origin" })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, data: j }; }); });
+  }
 
-    function postJson(url, body) {
-        var form = new URLSearchParams(body || {});
-        return fetch(url, {
-            method: "POST",
-            headers: headers,
-            body: form,
-            credentials: "same-origin",
-        }).then(function (r) { return r.json().then(function (j) { return {ok: r.ok, body: j}; }); });
-    }
-
-    // Stage A -> Stage B: authorize then redeem into a signed embed.
-    postJson(authUrl).then(function (res) {
-        if (!res.ok || !res.body.redeem_url) return;
-        return postJson(res.body.redeem_url, {token: res.body.token}).then(function (rr) {
-            if (!rr.ok) return;
-            var embedUrl = rr.body.embed_url || rr.body.url;
-            if (!embedUrl) return;
-            player.innerHTML = "";
-            var iframe = document.createElement("iframe");
-            iframe.src = embedUrl;
-            // WCAG 4.1.2: iframes need an accessible name.
-            iframe.title = "Tutorial video: " + document.title;
-            iframe.setAttribute("allowfullscreen", "true");
-            iframe.style.width = "100%";
-            iframe.style.height = "360px";
-            iframe.style.border = "0";
-            player.appendChild(iframe);
-            startHeartbeats();
-        });
+  button.addEventListener("click", function () {
+    button.disabled = true;
+    status.textContent = "Loading...";
+    post(player.dataset.authorizeUrl).then(function (auth) {
+      if (!auth.ok) throw new Error(auth.data.detail || "Play unavailable.");
+      return post(auth.data.redeem_url, { token: auth.data.token });
+    }).then(function (res) {
+      if (!res.ok) throw new Error(res.data.detail || "Play unavailable.");
+      player.innerHTML = "";
+      if (res.data.provider === "url") {
+        var video = document.createElement("video");
+        video.controls = true;
+        video.className = "h-full w-full";
+        video.setAttribute("controlsList", "nodownload noplaybackrate");
+        video.setAttribute("disablePictureInPicture", "");
+        video.setAttribute("preload", "metadata");
+        video.src = res.data.url;
+        player.appendChild(video);
+      } else {
+        var iframe = document.createElement("iframe");
+        iframe.src = res.data.embed_url;
+        iframe.className = "h-full w-full";
+        iframe.title = player.dataset.playerTitle || "Tutorial video";
+        iframe.allow = "accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture";
+        iframe.setAttribute("allowfullscreen", "");
+        // No referrer path leakage to the video host.
+        iframe.setAttribute("referrerpolicy", "strict-origin-when-cross-origin");
+        player.appendChild(iframe);
+      }
+      status.textContent = "";
+    }).catch(function (err) {
+      status.textContent = err.message;
+      button.disabled = false;
     });
-
-    // Watch heartbeats: only while the tab is visible; server clamps anyway.
-    var watched = parseInt(player.dataset.secondsWatched || "0", 10);
-    var done = player.dataset.completed === "1";
-    function startHeartbeats() {
-        if (!duration || done) return;
-        var idle = setInterval(function () {
-            if (document.visibilityState !== "visible") return;
-            postJson(progressUrl, {seconds: HEARTBEAT_SECONDS}).then(function (res) {
-                if (res.ok && res.body) {
-                    watched = res.body.seconds_watched;
-                    var line = document.getElementById("tmt-progress-line");
-                    if (line) {
-                        line.textContent = "Your progress: " + res.body.percent + "%"
-                            + (res.body.completed ? " — completed" : "");
-                    }
-                    if (res.body.completed && done === false) { done = true; clearInterval(idle); }
-                }
-            });
-        }, HEARTBEAT_SECONDS * 1000);
-    }
+  });
 })();
 </script>
+{% endif %}
 {% endblock %}

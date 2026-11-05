@@ -4,7 +4,10 @@ Acceptance from the plan: ordinary users are blocked from every dashboard
 action; no self-approval paths; mutations POST-only + CSRF; all approval,
 flag and grant actions audited.
 """
+from unittest import mock
+
 from django.core.cache import cache
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase
 from django.urls import reverse
 
@@ -54,6 +57,7 @@ class Gate(DashboardBase):
             ("post", reverse("dashboard:revoke", args=[self.plain.pk, self.tutorial.pk])),
             ("get", reverse("dashboard:tutorial_list")),
             ("get", reverse("dashboard:tutorial_create")),
+            ("get", reverse("dashboard:tutorial_access", args=[self.tutorial.pk])),
             ("post", reverse("dashboard:tutorial_delete", args=[self.tutorial.pk])),
             ("get", reverse("dashboard:category_list")),
             ("post", reverse("dashboard:category_delete", args=[self.category.pk])),
@@ -85,7 +89,8 @@ class Gate(DashboardBase):
         for url in [reverse("dashboard:overview"), reverse("dashboard:user_list"),
                     reverse("dashboard:tutorial_list"), reverse("dashboard:category_list"),
                     reverse("dashboard:user_detail", args=[self.pending.pk]),
-                    reverse("dashboard:tutorial_create")]:
+                    reverse("dashboard:tutorial_create"),
+                    reverse("dashboard:tutorial_access", args=[self.tutorial.pk])]:
             with self.subTest(url=url):
                 self.assertEqual(self.signed_in_staff.get(url).status_code, 200)
 
@@ -200,6 +205,144 @@ class Grants(DashboardBase):
         # The user still cannot *reach* the draft tutorial: predicate denies.
         c = self._client(self.plain)
         self.assertEqual(c.get(reverse("tutorials:detail", args=["draft"])).status_code, 404)
+
+
+class TutorialAccessScreen(DashboardBase):
+    """Give existing accounts access to ONE tutorial, from the tutorial's side."""
+
+    def setUp(self):
+        super().setUp()
+        self.url = reverse("dashboard:tutorial_access", args=[self.tutorial.pk])
+
+    def test_tutorial_list_links_to_the_access_screen(self):
+        response = self.signed_in_staff.get(reverse("dashboard:tutorial_list"))
+        self.assertContains(response, self.url)
+
+    def test_lists_accounts_with_grant_state(self):
+        TutorialAccess.objects.create(user=self.plain, tutorial=self.tutorial)
+        response = self.signed_in_staff.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.plain.username)
+        self.assertContains(response, self.pending.username)
+        self.assertEqual(response.context["grant_count"], 1)
+        self.assertIn(self.plain.pk, response.context["granted"])
+
+    def test_search_filters_accounts(self):
+        response = self.signed_in_staff.get(self.url, {"q": "plain"})
+        self.assertContains(response, "plain_user")
+        self.assertNotContains(response, "pending_user")
+
+    def test_grant_returns_to_the_tutorial_page(self):
+        response = self.signed_in_staff.post(
+            reverse("dashboard:grant", args=[self.plain.pk, self.tutorial.pk]),
+            {"next": self.url},
+        )
+        self.assertRedirects(response, self.url)
+        self.assertTrue(
+            TutorialAccess.objects.filter(user=self.plain, tutorial=self.tutorial).exists()
+        )
+
+    def test_revoke_returns_to_the_tutorial_page(self):
+        TutorialAccess.objects.create(user=self.plain, tutorial=self.tutorial)
+        response = self.signed_in_staff.post(
+            reverse("dashboard:revoke", args=[self.plain.pk, self.tutorial.pk]),
+            {"next": self.url},
+        )
+        self.assertRedirects(response, self.url)
+        self.assertFalse(
+            TutorialAccess.objects.filter(user=self.plain, tutorial=self.tutorial).exists()
+        )
+
+    def test_external_next_is_ignored(self):
+        response = self.signed_in_staff.post(
+            reverse("dashboard:grant", args=[self.plain.pk, self.tutorial.pk]),
+            {"next": "https://evil.example/steal"},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response["Location"],
+            reverse("dashboard:user_detail", args=[self.plain.pk]),
+        )
+
+    def test_draft_tutorial_warns_but_accepts_prepared_grants(self):
+        draft_url = reverse("dashboard:tutorial_access", args=[self.draft.pk])
+        response = self.signed_in_staff.get(draft_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "This is a draft")
+        self.signed_in_staff.post(
+            reverse("dashboard:grant", args=[self.plain.pk, self.draft.pk])
+        )
+        self.assertTrue(
+            TutorialAccess.objects.filter(user=self.plain, tutorial=self.draft).exists()
+        )
+
+
+class VideoUpload(DashboardBase):
+    """Dashboard upload -> Bunny Stream; the staff never opens bunny.net."""
+
+    UPLOAD = "tutorials.providers.bunny_upload.upload_file"
+
+    def _post_new(self, client, *, video_file=None):
+        data = {
+            "title": "Walkthrough 2", "description": "x", "video_provider": "none",
+            "video_ref": "", "is_published": "on", "ordering": "0",
+            "duration_seconds": "0", "estimated_minutes": "5",
+        }
+        if video_file is not None:
+            data["video_file"] = video_file
+        return client.post(reverse("dashboard:tutorial_create"), data)
+
+    def test_upload_sets_provider_and_reference(self):
+        video = SimpleUploadedFile("talk.mp4", b"mp4-bytes")
+        with mock.patch(self.UPLOAD, return_value="guid-123") as upload:
+            response = self._post_new(self.signed_in_staff, video_file=video)
+        self.assertEqual(response.status_code, 302)
+        created = Tutorial.objects.get(title="Walkthrough 2")
+        self.assertEqual(created.video_provider, "bunny")
+        self.assertEqual(created.video_ref, "guid-123")
+        upload.assert_called_once()
+
+    def test_upload_failure_saves_nothing_and_explains(self):
+        from tutorials.providers.bunny_upload import UploadError
+
+        video = SimpleUploadedFile("talk.mp4", b"mp4-bytes")
+        with mock.patch(self.UPLOAD, side_effect=UploadError("Bunny rejected the API key.")):
+            response = self._post_new(self.signed_in_staff, video_file=video)
+        self.assertEqual(response.status_code, 200)  # re-rendered with the error
+        self.assertContains(response, "Bunny rejected the API key")
+        self.assertFalse(Tutorial.objects.filter(title="Walkthrough 2").exists())
+
+    def test_unconfigured_upload_is_a_form_error(self):
+        # No mocking: the real client answers with the "set BUNNY_STREAM_API_KEY"
+        # explanation when the management key is absent.
+        video = SimpleUploadedFile("talk.mp4", b"mp4-bytes")
+        with self.settings(BUNNY_STREAM_API_KEY=""):
+            response = self._post_new(self.signed_in_staff, video_file=video)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "BUNNY_STREAM_API_KEY")
+        self.assertFalse(Tutorial.objects.filter(title="Walkthrough 2").exists())
+
+    def test_wrong_extension_rejected_before_any_upload(self):
+        video = SimpleUploadedFile("installer.exe", b"MZ")
+        with mock.patch(self.UPLOAD) as upload:
+            response = self._post_new(self.signed_in_staff, video_file=video)
+        self.assertEqual(response.status_code, 200)
+        upload.assert_not_called()
+        self.assertFalse(Tutorial.objects.filter(title="Walkthrough 2").exists())
+
+    def test_no_file_leaves_the_existing_video_untouched(self):
+        Tutorial.objects.filter(pk=self.tutorial.pk).update(
+            video_provider="bunny", video_ref="original-guid"
+        )
+        response = self.signed_in_staff.post(
+            reverse("dashboard:tutorial_edit", args=[self.tutorial.pk]),
+            {"title": self.tutorial.title, "slug": self.tutorial.slug, "description": "",
+             "video_provider": "bunny", "video_ref": "original-guid", "ordering": "0",
+             "duration_seconds": "0", "estimated_minutes": "0"},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.tutorial.refresh_from_db()
+        self.assertEqual(self.tutorial.video_ref, "original-guid")
 
 
 class TutorialCrud(DashboardBase):

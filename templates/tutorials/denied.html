@@ -1,19 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %}Tutorial unavailable{% endblock %}
+{% block title %}Access unavailable | {{ company.name }}{% endblock %}
 
 {% block content %}
-<div id="main-content">
-    <div class="container" style="max-width:640px;padding-top:58px;">
-        <h1 style="padding-bottom:20px;">Tutorial unavailable</h1>
-        {% if request.user.is_approved %}
-        <p>Your account is approved, but this tutorial has not been shared with you. Contact the site team if you need access.</p>
-        {% else %}
-        <p>Your account does not have tutorial access yet. Contact the site team if you believe this is an error.</p>
-        {% endif %}
-        <p>
-            <a href="{% url 'tutorials:list' %}" class="et_pb_button">Back to the tutorial library</a>
-        </p>
-    </div>
-</div>
+<section class="mx-auto max-w-2xl px-4 py-24">
+  <h1 class="text-3xl font-bold text-brand">Tutorial unavailable</h1>
+  <p class="mt-4 text-neutral-700">This tutorial is not available to your account.</p>
+  <p class="mt-4 text-neutral-700">Your account does not currently have access to this tutorial. Access is granted after approval by an administrator.</p>
+  <p class="mt-6"><a href="{% url 'tutorials:list' %}" class="font-semibold text-brand underline hover:text-accent">Back to tutorials</a></p>
+</section>
 {% endblock %}

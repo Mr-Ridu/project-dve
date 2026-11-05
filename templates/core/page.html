@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page.title }} | {{ company.name }}{% endblock %}
+{% block body_class %}page-detail{% endblock %}
+
+{% block content %}
+<section class="bg-brand text-white">
+  <div class="mx-auto max-w-7xl px-4 py-16">
+    <p class="text-sm font-bold uppercase tracking-[0.2em] text-accent"><a href="{% url 'core:home' %}" class="hover:text-white">Home</a> / {{ page.title }}</p>
+    <h1 class="mt-3 max-w-4xl text-4xl font-light md:text-5xl">{{ page.title }}</h1>
+  </div>
+</section>
+
+<section class="mx-auto max-w-4xl px-4 py-16">
+  <div class="space-y-6">
+    {% for para in page.paragraphs %}
+    <p class="leading-relaxed text-neutral-700">{{ para }}</p>
+    {% empty %}
+    <p class="text-neutral-700">Content for this page is being prepared. Please contact us if you need information about this topic.</p>
+    {% endfor %}
+  </div>
+
+  <div class="mt-12 flex flex-wrap gap-3 border-t border-neutral-200 pt-8">
+    <a href="{% url 'core:contact' %}" class="rounded bg-accent px-8 py-3 text-sm font-bold uppercase tracking-wider text-brand hover:opacity-90">Request Info</a>
+    <a href="{% url 'core:home' %}" class="rounded border border-brand px-8 py-3 text-sm font-bold uppercase tracking-wider text-brand hover:bg-brand hover:text-white">Back to Home</a>
+  </div>
+</section>
+{% endblock %}

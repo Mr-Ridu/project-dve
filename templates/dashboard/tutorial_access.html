@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Access — {{ tutorial.title }} | Staff dashboard{% endblock %}
+
+{% block content %}
+<section class="bg-brand text-white">
+  <div class="mx-auto max-w-6xl px-4 py-12">
+    <p class="text-sm font-bold uppercase tracking-wider text-accent">
+      <a href="{% url 'dashboard:tutorial_list' %}" class="hover:underline">Tutorials</a> / Access
+    </p>
+    <h1 class="mt-2 text-3xl font-bold md:text-4xl">{{ tutorial.title }}</h1>
+    <div class="mt-4 flex flex-wrap gap-x-8 gap-y-2 text-sm text-white/85">
+      <p>State: {% if tutorial.is_published %}<strong class="text-accent">published</strong>{% else %}<strong class="text-accent">draft</strong>{% endif %}</p>
+      <p>Provider: {{ tutorial.get_video_provider_display }}</p>
+      <p>Accounts with access: <strong class="text-accent">{{ grant_count }}</strong></p>
+    </div>
+  </div>
+</section>
+
+<div class="mx-auto max-w-6xl px-4 py-12">
+  {% include "dashboard/_staffnav.html" %}
+
+  {% if not tutorial.is_published %}
+  <p class="border-l-4 border-accent bg-neutral-50 px-4 py-3 text-sm text-neutral-700">This is a draft — grants can be prepared now, but nobody can play it until the tutorial is published.</p>
+  {% endif %}
+  {% if tutorial.video_provider == "none" %}
+  <p class="mt-3 border-l-4 border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">No video is attached yet, so this tutorial will not play even for accounts that have access.</p>
+  {% endif %}
+
+  <form method="get" class="mt-6 flex flex-wrap items-end gap-3 border border-neutral-200 bg-neutral-50 p-4">
+    <div class="min-w-56 flex-1">
+      <label for="access-q" class="block text-xs font-bold uppercase tracking-wider text-neutral-500">Find an account</label>
+      <input id="access-q" type="search" name="q" value="{{ q }}" placeholder="Username or email"
+             class="mt-1 w-full border border-neutral-300 bg-white px-3 py-2 text-sm">
+    </div>
+    <button type="submit" class="cursor-pointer rounded bg-accent px-6 py-2 text-sm font-bold uppercase text-brand hover:opacity-90">Search</button>
+    <a href="{% url 'dashboard:tutorial_access' tutorial.pk %}" class="px-2 py-2 text-sm font-bold uppercase text-neutral-500 hover:text-brand">Reset</a>
+  </form>
+
+  <div class="mt-6 overflow-x-auto border border-neutral-200">
+    <table class="w-full text-left text-sm">
+      <thead class="bg-neutral-100 text-xs font-bold uppercase tracking-wider text-neutral-500">
+        <tr>
+          <th scope="col" class="px-4 py-3">Account</th>
+          <th scope="col" class="px-4 py-3">Approval</th>
+          <th scope="col" class="px-4 py-3">All-library</th>
+          <th scope="col" class="px-4 py-3">Access to this video</th>
+          <th scope="col" class="px-4 py-3">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for account in accounts %}
+        <tr class="border-t border-neutral-200">
+          <td class="px-4 py-3 font-semibold text-brand">
+            <a href="{% url 'dashboard:user_detail' account.pk %}" class="hover:text-accent">{{ account.username }}</a>
+          </td>
+          <td class="px-4 py-3 text-neutral-700">{{ account.get_approval_status_display }}</td>
+          <td class="px-4 py-3 text-neutral-700">{{ account.access_all_tutorials|yesno:"yes,no" }}</td>
+          <td class="px-4 py-3 text-neutral-700">
+            {% if account.access_all_tutorials %}all-library{% elif account.pk in granted %}yes{% else %}no{% endif %}
+          </td>
+          <td class="px-4 py-3">
+            {% if account.pk in granted %}
+            <form method="post" action="{% url 'dashboard:revoke' account.pk tutorial.pk %}">
+              {% csrf_token %}
+              <input type="hidden" name="next" value="{{ request.get_full_path }}">
+              <button type="submit" class="cursor-pointer rounded border border-neutral-300 px-4 py-1 text-xs font-bold uppercase text-brand hover:border-accent">Revoke</button>
+            </form>
+            {% else %}
+            <form method="post" action="{% url 'dashboard:grant' account.pk tutorial.pk %}">
+              {% csrf_token %}
+              <input type="hidden" name="next" value="{{ request.get_full_path }}">
+              <button type="submit" class="cursor-pointer rounded bg-accent px-4 py-1 text-xs font-bold uppercase text-brand hover:opacity-90">Grant</button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5" class="px-4 py-8 text-center text-neutral-500">No accounts match this search.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <p class="mt-4 text-sm text-neutral-600">
+    A grant alone is not enough: the account must also be <strong>approved</strong> and active, and the tutorial published.
+    An account with the all-library flag can already watch this video without a grant.
+  </p>
+</div>
+{% endblock %}

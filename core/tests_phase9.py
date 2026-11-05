@@ -27,7 +27,7 @@ PAGES = [
     "/services/",
     "/contact/",
     "/tutorials/",
-    "/search/?s=sarrp",
+    "/search/?s=steel",
     "/accounts/login/",
     "/accounts/register/",
 ]
@@ -122,7 +122,7 @@ class AccessibilityInvariants(TestCase):
     def test_accessibility_stylesheet_loads_after_theme(self):
         html = self.pages["/"]["html"]
         a11y = html.find("site-a11y.css")
-        theme = html.find("style.css")
+        theme = html.find("app.css")
         self.assertGreater(a11y, -1, "site-a11y.css is not linked")
         self.assertGreater(a11y, theme, "a11y overrides must come after the theme")
 
@@ -158,7 +158,7 @@ class AccessibilityInvariants(TestCase):
         self.assertIn('aria-label="Search the site"', html)
 
     def test_search_page_has_a_labelled_field(self):
-        html = self.pages["/search/?s=sarrp"]["html"]
+        html = self.pages["/search/?s=steel"]["html"]
         self.assertIn('for="site-search"', html)
         self.assertIn('id="site-search"', html)
 
@@ -177,14 +177,13 @@ class ResponsiveGuards(SimpleTestCase):
     def test_mobile_breakpoint_present(self):
         self.assertIn("@media (max-width: 767px)", self.css)
 
-    def test_secondary_mobile_menu_is_stacked(self):
-        # The theme absolutely positioned this panel 49px past a 375px viewport.
-        self.assertIn("#menu-mobile-secondary-menu > li > ul.sub-menu", self.css)
-        self.assertIn("position: static !important", self.css)
+    def test_long_strings_wrap_instead_of_widening_the_page(self):
+        # Long unbroken strings (URLs, emails, product codes) caused the
+        # mobile horizontal scroll; they must wrap, not overflow.
+        self.assertIn("overflow-wrap: break-word", self.css)
 
-    def test_modules_are_capped_to_their_column(self):
-        self.assertIn(".et_pb_column,", self.css)
-        self.assertIn("max-width: 100% !important", self.css)
+    def test_embedded_media_is_capped_to_the_viewport(self):
+        self.assertIn("max-width: 100%", self.css)
 
     def test_dashboard_tables_scroll_instead_of_widening_the_page(self):
         self.assertIn("main table {", self.css)

@@ -1,19 +1,27 @@
 {% extends "base.html" %}
 
-{% block title %}{{ category.name }} — Tutorial Library{% endblock %}
-
-{% block body_class %}et_pb_pagebuilder_layout page-template-default single single-page{% endblock %}
+{% block title %}{{ category.name }} | {{ company.name }}{% endblock %}
 
 {% block content %}
-<div id="main-content">
-    <div class="container" style="padding-top:58px;">
-        <p><a href="{% url 'tutorials:list' %}">&larr; Back to the tutorial library</a></p>
-        <h1 style="padding-bottom:10px;">{{ category.name }}</h1>
-        {% if tutorials %}
-            {% include "tutorials/_grid.html" with tutorials=tutorials %}
-        {% else %}
-            <p>No tutorials in this category yet.</p>
-        {% endif %}
-    </div>
-</div>
+<section class="bg-brand text-white">
+  <div class="mx-auto max-w-6xl px-4 py-20">
+    <p class="text-sm font-bold uppercase tracking-wider text-accent"><a href="{% url 'tutorials:list' %}" class="hover:underline">Tutorials</a> / {{ category.name }}</p>
+    <h1 class="mt-3 text-4xl font-bold md:text-5xl">{{ category.name }}</h1>
+  </div>
+</section>
+
+<section class="mx-auto max-w-6xl px-4 py-16">
+  <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+    {% for tutorial in tutorials %}
+    <a href="{% url 'tutorials:detail' tutorial.slug %}" class="block border border-neutral-200 p-6 hover:border-accent">
+      <h2 class="text-lg font-bold text-brand">{{ tutorial.title }}</h2>
+      {% if tutorial.estimated_minutes %}<p class="mt-1 text-sm text-neutral-500">{{ tutorial.estimated_minutes }} min</p>{% endif %}
+      <p class="mt-3 text-neutral-700">{{ tutorial.description|truncatewords:25 }}</p>
+      <p class="mt-4 text-sm font-semibold {% if tutorial.user_has_access %}text-brand{% else %}text-neutral-500{% endif %}">{% if tutorial.user_has_access %}Available{% else %}Locked{% endif %}</p>
+    </a>
+    {% empty %}
+    <p class="text-neutral-700">No tutorials in this category yet.</p>
+    {% endfor %}
+  </div>
+</section>
 {% endblock %}

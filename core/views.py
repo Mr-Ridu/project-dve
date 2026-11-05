@@ -1,23 +1,18 @@
-"""Public page views (Phase 3).
+"""Public page views.
 
-Five core pages render as real Django templates built from the site's own
-design (templates/core/*.html). The remaining mirrored pages are served from
-legacy/ through a sanitized catch-all so every original URL keeps working
-until each page is converted.
+Every page renders from the project's own Django templates (templates/core/*),
+built with template inheritance over base.html. The five main pages have their
+own templates; every other content page renders through templates/core/page.html
+from the text registry in core/site_pages.py — no mirror files are read at
+request time.
 """
-import re
-from pathlib import Path
-
-from django.conf import settings
-from django.http import Http404, HttpResponse
+from django.http import Http404
 from django.shortcuts import render
 from django.views.decorators.csrf import requires_csrf_token
 from django.views.decorators.http import require_http_methods
 
-from .sanitize import sanitize
-
-LEGACY_DIR = Path(settings.BASE_DIR) / "legacy"
-SAFE_SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,99}$")
+from .site_pages import PAGES
+from .throttle import rate_limit
 
 
 # --- Core pages -------------------------------------------------------------
@@ -41,30 +36,33 @@ def contact(request):
     return render(request, "core/contact.html")
 
 
-# --- Stubs (real delivery is configured in a later phase) --------------------
+# --- Local form stub --------------------------------------------------------
+@rate_limit("forms")
 @require_http_methods(["GET", "POST"])
 @requires_csrf_token
 def form_placeholder(request):
     """Local target for the site's forms.
 
-    The mirrored forms used to POST to third parties (xstrahl.com admin-ajax,
-    the original company's Zoho desk). They now land here: nothing is
-    transmitted anywhere. Wiring real delivery is a later phase decision.
+    Nothing is transmitted anywhere: wiring real delivery is a later phase
+    decision.
     """
     return render(request, "core/form_placeholder.html")
 
 
+# --- Site search ------------------------------------------------------------
+@rate_limit("search")
 def search(request):
-    """Site search (Phase 8): legacy corpus + published tutorials.
+    """Site search: content pages from the registry + published tutorials.
 
-    GET-only, CSL-safe by construction. args corrected: the query text only
-    ever reaches the template as escaped output; no user input is executed.
+    GET-only and safe by construction: the query text only ever reaches the
+    template as escaped output.
     """
     from tutorials.models import Tutorial
+
     from .search_index import search_text
 
     query = request.GET.get("s", "").strip()
-    legacy_results = search_text(query)[:20]
+    page_results = search_text(query)[:20]
     normalized = " ".join(query.split()).lower()
     tutorial_results = []
     if normalized:
@@ -74,27 +72,24 @@ def search(request):
                 tutorial_results.append(t)
     return render(request, "core/search.html", {
         "query": query,
-        "legacy_results": legacy_results,
+        "legacy_results": page_results,
         "tutorials": tutorial_results[:10],
         "searched": bool(query),
     })
 
 
-# --- Sanitized legacy catch-all --------------------------------------------
-def legacy_page(request, slug):
-    """Serve a not-yet-converted mirrored page at its original URL.
+# --- Registry content pages -------------------------------------------------
+def page_detail(request, slug):
+    """Render one content page from the registry through core/page.html.
 
-    Only strict lowercase slugs are accepted (no traversal); the file must be
-    a direct child of legacy/; output passes the shared sanitizer so no
-    third-party endpoint is ever emitted to a visitor.
+    The URL pattern already restricts slugs to lowercase letters, digits and
+    hyphens, so there is no path to anything but this in-memory registry. An
+    unknown slug is a 404.
     """
-    if not SAFE_SLUG_RE.match(slug):
+    page = PAGES.get(slug)
+    if page is None:
         raise Http404("Not found")
-    path = (LEGACY_DIR / f"{slug}.html").resolve()
-    if path.parent != LEGACY_DIR.resolve() or not path.is_file():
-        raise Http404("Not found")
-    html = path.read_text(encoding="utf-8", errors="replace")
-    return HttpResponse(sanitize(html), content_type="text/html; charset=utf-8")
+    return render(request, "core/page.html", {"page": page})
 
 
 # --- 404 --------------------------------------------------------------------

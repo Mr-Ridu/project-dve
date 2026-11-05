@@ -1,14 +1,14 @@
 /*
- * Phase 9 accessibility layer.
+ * Accessibility layer for the site's own design.
  *
- * Loaded last, after the Divi stylesheets. Divi ships `:focus{outline:0}` with
- * no replacement and a viewport tag that blocks pinch-zoom; both fail WCAG.
- * These rules restore what the theme removed rather than restyling the site.
+ * Loaded after css/app.css. Tailwind resets focus rings and does not wrap long
+ * unbroken strings; these rules restore what the build does not provide rather
+ * than restyling the site.
  */
 
 /* --- 1. Visible keyboard focus (WCAG 2.4.7) --------------------------------
    `:focus` is the fallback for browsers without :focus-visible; the second
-   rule drops the ring for pointer users so the original look is unchanged. */
+   rule drops the ring for pointer users so the pointer look is unchanged. */
 a:focus,
 button:focus,
 input:focus,
@@ -42,7 +42,6 @@ button:focus:not(:focus-visible),
     padding: 12px 18px;
     background: #190321;
     color: #fff !important;
-    font-family: objektiv-mk1, sans-serif;
     font-size: 14px;
     font-weight: 700;
     letter-spacing: 1px;
@@ -56,20 +55,14 @@ button:focus:not(:focus-visible),
     top: 0;
 }
 
-/* Fixed header: anchored targets must not land underneath it. */
-#site-main,
-#main-content,
+/* Sticky header: anchored targets must not land underneath it. */
 [id] {
     scroll-margin-top: 90px;
 }
 
 /* --- 3. Horizontal overflow -------------------------------------------------
-   Long unbroken strings (URLs, emails, product codes) were the source of the
+   Long unbroken strings (URLs, emails, product codes) are the source of
    mobile horizontal scroll. Wrap them instead of hiding the overflow. */
-#site-main,
-#main-content,
-.et_pb_text_inner,
-.entry-content,
 td,
 th,
 p,
@@ -94,60 +87,9 @@ h6 {
         overflow-x: auto;
     }
 
-    /* Divi's sliders set explicit pixel widths; keep them inside the viewport. */
-    .et_pb_slider,
-    .et_pb_slide,
-    .et_pb_slide_description {
-        max-width: 100% !important;
-    }
-
     img,
     iframe,
     video {
         max-width: 100%;
-    }
-
-    /* Divi modules can compute wider than the column that contains them
-       (seen on /about/, where a text module ran 36px off-screen). Cap modules
-       at their containing block so the page never scrolls sideways. */
-    .et_pb_column,
-    .et_pb_module,
-    .et_pb_text_inner {
-        max-width: 100% !important;
-        box-sizing: border-box;
-    }
-
-    /* Secondary mobile menu (Phase 9): the theme absolutely positions the
-       third column's sub-menu at its item's x-offset, so a 185px panel starting
-       at 239px ran 49px past a 375px viewport and was clipped by the theme's
-       `body{overflow-x:hidden}` band-aid. Stack the panels instead of
-       positioning them, which removes the overflow at every phone width. */
-    #menu-mobile-secondary-menu {
-        /* The theme pulls this list 11px left via a negative margin; inside the
-           clipped mobile body that is what pushed the right edge past the
-           viewport. Keep it flush with the container. */
-        margin-left: 0 !important;
-        margin-right: 0 !important;
-        width: 100% !important;
-    }
-
-    #menu-mobile-secondary-menu > li {
-        width: auto !important;
-        flex: 1 1 33.333%;
-    }
-
-    #menu-mobile-secondary-menu > li > ul.sub-menu {
-        position: static !important;
-        width: auto !important;
-        box-shadow: none !important;
-        padding: 10px 0 0 0 !important;
-    }
-
-    #menu-mobile-secondary-menu > li > ul.sub-menu > li > ul.sub-menu {
-        position: static !important;
-        left: auto !important;
-        right: auto !important;
-        width: auto !important;
-        padding-left: 12px !important;
     }
 }

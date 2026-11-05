@@ -1,15 +1,11 @@
 {% extends "base.html" %}
 
-{% block title %}Page not found{% endblock %}
+{% block title %}Page not found | {{ company.name }}{% endblock %}
 
 {% block content %}
-<div id="main-content">
-    <article class="page">
-        <div class="entry-content">
-            <h1>Page not found</h1>
-            <p>The page you requested does not exist.</p>
-            <p><a href="{% url 'core:home' %}">Return to the home page</a></p>
-        </div>
-    </article>
-</div>
+<section class="mx-auto max-w-2xl px-4 py-24">
+  <h1 class="text-3xl font-bold text-brand">Page not found</h1>
+  <p class="mt-4 text-neutral-700">The page you are looking for does not exist or has moved.</p>
+  <p class="mt-4"><a href="{% url 'core:home' %}" class="font-semibold text-brand underline hover:text-accent">Return to the home page</a></p>
+</section>
 {% endblock %}

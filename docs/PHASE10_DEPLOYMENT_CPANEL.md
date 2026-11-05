@@ -1,4 +1,9 @@
-# Phase 10 — Deploying this project on cPanel (Passenger + MySQL)
+# Phase 10 — Deploying this project on cPanel (Passenger + SQLite, MySQL optional)
+
+> **SSH ছাড়া লাইভ করতে:** `docs/GO_LIVE_MANUAL_BN.md` দেখুন — বাংলা, ধাপে ধাপে, শুধু cPanel-এর বাটন দিয়ে।
+>
+> **Default database: SQLite** at `apps/tmt/db.sqlite3` (outside `public_html`).
+> MySQL is optional; §4–§5 and the MySQL migration guide cover it.
 
 This is the runbook for putting the finished site on a cPanel host. It assumes
 the standard CloudLinux/cPanel **Setup Python App** feature, which runs the app
@@ -16,7 +21,7 @@ Ask support (or read them in cPanel) **before** uploading anything:
 | Fact | Why it matters | Acceptable |
 |---|---|---|
 | Python versions offered | Django 5.2 needs 3.10+; this project was developed on 3.12 | 3.10 – 3.13 |
-| MySQL / MariaDB version | Django 5.2 supports MySQL **8.0.11+** / MariaDB **10.5.2+** | at or above those |
+| MySQL / MariaDB version (only if you choose MySQL) | Django 5.2 supports MySQL **8.0.11+** / MariaDB **10.5.2+** | at or above those |
 | Passenger "max processes" / `LSAPI_CHILDREN` | Each worker is a Python process (~80–150 MB RSS). Video is streamed by Bunny, not by this app | ≥ 2 workers |
 | Upload limit (LiteSpeed/Post `post_max_size`) | Thumbnails are capped at 5 MB by the app; the server must allow at least that | ≥ 8 MB |
 | Whether `public_html` is separate from the app directory | Static files are served by the web server from `public_html` | yes |
@@ -46,8 +51,8 @@ will not run on it.
 └── virtualenv/apps/tmt/3.12/  ← created by cPanel's Python App
 ```
 
-Nothing under `apps/tmt` is reachable by URL. `db.sqlite3` is **not** used in
-production (see the MySQL guide).
+Nothing under `apps/tmt` is reachable by URL. Production uses SQLite at
+`apps/tmt/db.sqlite3` by default; the MySQL guide is optional.
 
 ---
 
@@ -74,8 +79,8 @@ cd ~/apps/tmt
 # either clone, or upload a zip of the repo and unzip here
 source ~/virtualenv/apps/tmt/3.12/bin/activate
 pip install --upgrade pip
-pip install -r requirements.txt          # Django 5.2.x
-pip install mysqlclient                  # see the MySQL guide if this fails
+pip install -r requirements.txt          # Django 5.2.x + PyMySQL
+# MySQL is optional; PyMySQL in requirements.txt is enough when you enable it.
 python -c "import django; print(django.get_version())"
 ```
 
@@ -100,14 +105,16 @@ python -c "import secrets; print(secrets.token_urlsafe(64))"
 | `DJANGO_SETTINGS_MODULE` | yes | `config.settings.prod` | `passenger_wsgi.py` defaults to this |
 | `DJANGO_SECRET_KEY` | **yes** | 64-char random | App refuses to start without it |
 | `DJANGO_ALLOWED_HOSTS` | **yes** | `example.com,www.example.com` | No scheme, no trailing slash |
-| `DB_ENGINE` | yes on MySQL | `mysql` | Anything else = SQLite |
-| `DB_NAME` / `DB_USER` / `DB_PASSWORD` | yes on MySQL | from cPanel | DB user needs ALL PRIVILEGES on that DB |
+| `DB_ENGINE` | no | `sqlite` (default) | Set `mysql` only when you choose MySQL |
+| `DJANGO_DB_PATH` | no | `/home/USER/apps/tmt/db.sqlite3` | SQLite file; keep it outside `public_html` |
+| `DB_NAME` / `DB_USER` / `DB_PASSWORD` | only for MySQL | from cPanel | DB user needs ALL PRIVILEGES on that DB |
 | `DB_HOST` / `DB_PORT` | no | `localhost` / `3306` | cPanel default is a local socket |
 | `DJANGO_SSL_REDIRECT` | no | `1` (default) | `0` only while testing without HTTPS |
 | `DJANGO_HSTS_SECONDS` | no | `0` (default) → later `31536000` | Enable only after HTTPS is proven (§9) |
 | `DJANGO_CACHE_BACKEND` | no | `database` (prod default) | `locmem` only for a single-worker host |
 | `BUNNY_STREAM_LIBRARY_ID` | for video | numeric id | Empty ⇒ playback answers 503 |
-| `BUNNY_STREAM_SECURITY_KEY` | for video | Bunny token key | Never commit this |
+| `BUNNY_STREAM_SECURITY_KEY` | for video | Bunny token key (Security screen) | Never commit this |
+| `BUNNY_STREAM_API_KEY` | for video uploads | Bunny management key (API screen) | Empty ⇒ dashboard upload box is disabled; playback unaffected |
 | `DJANGO_LOG_LEVEL` | no | `INFO` | Passenger captures stderr into the app log |
 | `DJANGO_ENV_FILE` | no | `/home/USER/apps/tmt/.env` | Only if you use a file instead of the UI |
 
@@ -118,10 +125,8 @@ umask 077
 cat > ~/apps/tmt/.env <<'EOF'
 DJANGO_SECRET_KEY=replace-me
 DJANGO_ALLOWED_HOSTS=example.com,www.example.com
-DB_ENGINE=mysql
-DB_NAME=...
-DB_USER=...
-DB_PASSWORD=...
+DB_ENGINE=sqlite
+# MySQL instead: DB_ENGINE=mysql + DB_NAME/DB_USER/DB_PASSWORD/DB_HOST/DB_PORT
 EOF
 chmod 600 ~/apps/tmt/.env
 ```
@@ -132,7 +137,9 @@ the repository or in a support ticket.
 
 ---
 
-## 5. Create the database
+## 5. Create the database (MySQL only — optional)
+
+Skip this section for the default SQLite deployment.
 
 cPanel → **MySQL Databases**:
 
@@ -262,7 +269,10 @@ expire on their own (10 minutes, `TOKEN_TTL_SECONDS`).
 ## 11. Backups
 
 ```bash
-# database
+# SQLite database (default)
+cp ~/apps/tmt/db.sqlite3 ~/backups/db-$(date +%F).sqlite3
+
+# MySQL (only if DB_ENGINE=mysql)
 mysqldump --single-transaction --default-character-set=utf8mb4 \
   -u USER_tmt -p USER_tmt > ~/backups/tmt-$(date +%F).sql
 
@@ -273,8 +283,9 @@ tar czf ~/backups/media-$(date +%F).tar.gz -C ~/apps/tmt media
 cp ~/apps/tmt/.env ~/backups/env-$(date +%F).env
 ```
 
-Keep at least seven daily dumps. `~/backups` must be outside `public_html`.
-Restore: `mysql -u USER_tmt -p USER_tmt < file.sql`, then untar media.
+Keep at least seven daily backups. `~/backups` must be outside `public_html`.
+Restore SQLite by copying the file back; restore MySQL with
+`mysql -u USER_tmt -p USER_tmt < file.sql`, then untar media.
 
 ---
 
@@ -321,5 +332,5 @@ Verified on this machine (Windows dev box, not the host):
   -e auth.permission -e sessions` → valid JSON.
 
 **Not testable here:** Passenger itself, cPanel's Python selector, AutoSSL, the
-MySQL server, and every host-specific limit in §0. Those are the steps that need
+MySQL server (unless MySQL is enabled), and every host-specific limit in §0. Those are the steps that need
 your host's actual answers.

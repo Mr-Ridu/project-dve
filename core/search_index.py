@@ -1,55 +1,65 @@
-"""Legacy-page full-text index (Phase 8).
+"""Content-page full-text index.
 
-The 51 mirrored pages are static files; we keep the searchable text in memory
-and refresh it at most once per process (module-level cache). Everything is
-read-only and safe: titles/text are plain strings, escaped in the template.
+The searchable text comes from core.site_pages (the content registry). It is
+plain data, kept in memory and read-only: titles/text are plain strings,
+escaped in the template.
 
 Accuracy contract (tested): matching is case-insensitive; a term matching a
-page <title> or the slug ranks above pure body matches; body matches are
-pretty-printed with a short surrounding snippet, tags stripped.
+page title or the slug ranks above pure body matches; body matches are shown
+with a short surrounding snippet.
 """
-import re
 from functools import lru_cache
-from html import unescape
 
-from django.conf import settings
+from .site_pages import PAGES
 
-from .sanitize import sanitize
-
-TAG_RE = re.compile(r"<[^>]+>")
-WS_RE = re.compile(r"\s+")
-MAX_TEXT_CHARS = 400_000  # per page; body text beyond this is ignored
-
-
-def _strip(raw_html: str) -> str:
-    """Sanitized (third-party-free) page → visible text only."""
-    html = sanitize(raw_html)
-    html = re.sub(r"<(script|style|noscript)\b.*?</\1>", " ", html, flags=re.I | re.S)
-    text = unescape(TAG_RE.sub(" ", html))
-    return WS_RE.sub(" ", text).strip()[:MAX_TEXT_CHARS]
+# The main pages are Django templates rather than registry entries, but they
+# should still be findable. Tutorials are searched separately by the view.
+EXTRA_PAGES = [
+    (
+        "products",
+        "Products and industrial systems",
+        "Equipment and systems for industrial plant and machinery, energy and "
+        "power, robotic automation, steel and metal, and pharma and biotech. "
+        "Installation, spares and technical support.",
+    ),
+    (
+        "about",
+        "About Techno Mate Technologies",
+        "Who we are, the five industrial sectors we supply, and how we specify, "
+        "install and support equipment in Bangladesh.",
+    ),
+    (
+        "services",
+        "Service and support",
+        "Installation, preventive maintenance, genuine spares and technical "
+        "support for the industrial equipment we supply.",
+    ),
+    (
+        "contact",
+        "Contact Techno Mate Technologies",
+        "Dhaka and Chattogram offices, phone numbers and email for product "
+        "enquiries and support.",
+    ),
+    (
+        "tutorials",
+        "Tutorial library",
+        "Video tutorials covering installation, operation and maintenance of "
+        "our industrial equipment.",
+    ),
+]
 
 
 @lru_cache(maxsize=1)
 def load_index():
-    """[(slug, title, text)] for every legacy page, loaded once per process."""
-    legacy_dir = settings.BASE_DIR / "legacy"
-    entries = []
-    for path in sorted(legacy_dir.glob("*.html")):
-        slug = path.stem
-        if not re.match(r"^[a-z0-9][a-z0-9-]{0,99}$", slug):
-            continue
-        try:
-            raw = path.read_text(encoding="utf-8", errors="replace")
-        except OSError:
-            continue
-        title_match = re.search(r"<title>(.*?)</title>", raw, re.I | re.S)
-        title = unescape(WS_RE.sub(" ", title_match.group(1))).strip() if title_match else slug
-        entries.append((slug, title, _strip(raw)))
+    """[(slug, title, text)] for every searchable page, loaded once per process."""
+    entries = list(EXTRA_PAGES)
+    for slug, page in PAGES.items():
+        entries.append((slug, page["title"], " ".join(page["paragraphs"])))
     return entries
 
 
 def search_text(query: str, limit: int = 20):
-    """Search the legacy corpus. Returns [{slug,title,url,snippet,kind}]."""
+    """Search the content pages. Returns [{slug,title,snippet,score}]."""
     query = query.strip()
     if not query:
         return []

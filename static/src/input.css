@@ -1,0 +1,380 @@
+@import "tailwindcss";
+
+@source "../../templates";
+@source "../js";
+
+/* Self-hosted Inter (no third-party font requests). */
+@font-face {
+  font-family: "Inter";
+  src: url("../fonts/inter-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Inter";
+  src: url("../fonts/inter-500.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Inter";
+  src: url("../fonts/inter-600.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Inter";
+  src: url("../fonts/inter-700.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+
+@theme {
+  --color-brand: #190321;
+  --color-accent: #b4da4f;
+  --color-plum: #8a4d9f;
+  --color-cyan: #01bcd2;
+  --color-footer: #220c29;
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-white font-sans text-neutral-900 antialiased;
+  }
+
+  /* Django renders form widgets without classes; style them once here. */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
+  select,
+  textarea {
+    @apply w-full border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900;
+  }
+
+  input[type="checkbox"],
+  input[type="radio"] {
+    @apply h-4 w-4 accent-brand;
+  }
+}
+
+/* --- Home page ----------------------------------------------------------- */
+.hero-home {
+  background-color: #190321;
+  background-image:
+    linear-gradient(90deg, rgba(12, 4, 28, 0.78) 0%, rgba(12, 4, 28, 0.5) 55%, rgba(12, 4, 28, 0.25) 100%),
+    url("../images/products/hero.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Featured News carousel: one panel visible, two progress-tab controls. */
+.news-slide {
+  display: none;
+}
+
+.news-slide.is-active {
+  display: grid;
+}
+
+.news-dot {
+  width: 78px;
+  height: 6px;
+  background: #d8d3dd;
+  transition: background-color 0.18s ease;
+}
+
+.news-dot[aria-pressed="true"] {
+  background: #8a4d9f;
+}
+
+.news-dot:hover,
+.news-dot:focus-visible {
+  background: #190321;
+}
+
+.news-dot:focus-visible {
+  outline: 2px solid #190321;
+  outline-offset: 4px;
+}
+
+/* Small uppercase label above a section heading. */
+.eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #8a4d9f;
+}
+
+/* Reference buttons: 12px, letter-spaced, 4px radius, 45px side padding. */
+.btn-ref {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 11px 38px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-align: center;
+  transition: opacity 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+
+.btn-ref:hover,
+.btn-ref:focus-visible {
+  opacity: 0.88;
+}
+
+.btn-ref-sm {
+  padding: 10px 14px;
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+
+.btn-ref-white {
+  background: #fff;
+  border-color: #fff;
+  color: #190321;
+}
+
+.btn-ref-ghost {
+  background: transparent;
+  border-color: #fff;
+  color: #fff;
+}
+
+.btn-ref-plum {
+  background: #8a4d9f;
+  border-color: #8a4d9f;
+  color: #fff;
+}
+
+.btn-ref-cyan {
+  background: #01bcd2;
+  border-color: #01bcd2;
+  color: #000;
+}
+
+.btn-ref-outline {
+  background: transparent;
+  border-color: #190321;
+  color: #190321;
+}
+
+.btn-ref-outline:hover {
+  background: #190321;
+  color: #fff;
+}
+
+/* Cream CTA bands with faint brand gradients. */
+.cta-cream {
+  background-color: #f6f5f2;
+  background-image: linear-gradient(120deg, rgba(1, 188, 210, 0.14), rgba(138, 77, 159, 0.12));
+}
+
+/* --- Secondary navbar: product sectors over the hero artwork -------------- */
+/* No artwork of its own: the bar is a solid brand strip on inner pages, and
+   fully transparent where it sits on top of the home page hero. */
+.second-bar {
+  background-color: #190321;
+}
+
+@media (min-width: 1024px) {
+  body.home .second-bar {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: transparent;
+  }
+
+  /* Lift the hero artwork behind the floating bar (the inner wrapper already
+     carries the 120px top padding, so only the bar's own height is added). */
+  body.home .hero-home {
+    padding-top: 86px;
+  }
+}
+
+.second-bar-item {
+  padding-right: 0.75rem;
+  margin-right: 0.75rem;
+  border-right: 1px solid rgba(255, 255, 255, 0.5);
+  line-height: 1.6;
+}
+
+.second-bar-item-last {
+  padding-right: 0;
+  margin-right: 0;
+  border-right: 0;
+}
+
+.second-bar-item a:hover,
+.second-bar-item a:focus-visible {
+  color: #b4da4f;
+}
+
+/* --- Solid CTA buttons (square, letter-spaced uppercase) ----------------- */
+.btn-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 220px;
+  height: 46px;
+  padding: 0;
+  border-radius: 2px;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  transition: opacity 0.15s ease;
+}
+
+.btn-cta:hover,
+.btn-cta:focus-visible {
+  opacity: 0.9;
+}
+
+/* --- Footer -------------------------------------------------------------- */
+.footer-heading {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #fff;
+}
+
+.footer-link {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.45;
+  color: #fff;
+}
+
+.footer-link:hover,
+.footer-link:focus-visible {
+  color: #b4da4f;
+}
+
+.footer-link-caps {
+  font-size: 13.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* --- Navbar dropdowns (flyout menus) ------------------------------------- */
+.nav-list {
+  display: flex;
+  align-items: center;
+  gap: 1.625rem;
+}
+
+.nav-item {
+  position: relative;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.5rem 0;
+  white-space: nowrap;
+}
+
+.nav-link:hover,
+.nav-link:focus-visible {
+  color: #8a4d9f;
+}
+
+/* The trailing "+" on flyout parents; it flips to a minus while open. */
+.nav-plus {
+  font-weight: 700;
+  line-height: 1;
+}
+
+.nav-panel {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: 100%;
+  z-index: 60;
+  min-width: 15rem;
+  background: #fff;
+  padding: 0.5rem 0;
+  box-shadow: 0 10px 25px rgba(25, 3, 33, 0.15);
+  border-top: 3px solid #b4da4f;
+}
+
+.nav-item:hover > .nav-panel,
+.nav-item:focus-within > .nav-panel,
+.nav-sub:hover > .nav-panel,
+.nav-sub:focus-within > .nav-panel {
+  display: block;
+}
+
+/* Flyout submenus open to the right of their parent. */
+.nav-sub > .nav-panel {
+  left: 100%;
+  top: -0.5rem;
+}
+
+.nav-panel a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.55rem 1.15rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  white-space: nowrap;
+  color: #190321;
+}
+
+/* Divider + signed-in identity inside a dropdown. */
+.nav-sep {
+  height: 1px;
+  margin: 0.4rem 0;
+  background: #e5e1e8;
+}
+
+.nav-user {
+  display: block;
+  padding: 0.55rem 1.15rem 0.15rem;
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: #6b6472;
+}
+
+.nav-signout-form button {
+  width: 100%;
+  padding: 0.55rem 1.15rem;
+  text-align: left;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #190321;
+  cursor: pointer;
+}
+
+.nav-signout-form button:hover,
+.nav-signout-form button:focus-visible {
+  background: #f5f3f7;
+  color: #8a4d9f;
+}
+
+.nav-panel a:hover,
+.nav-panel a:focus-visible {
+  background: #f5f3f7;
+  color: #8a4d9f;
+}

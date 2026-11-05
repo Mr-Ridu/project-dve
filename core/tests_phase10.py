@@ -28,6 +28,7 @@ CLEAN_ENV = {
         "DJANGO_CACHE_BACKEND",
         "DJANGO_ENV_FILE",
         "DB_ENGINE",
+        "DJANGO_DB_PATH",
         "DB_NAME",
         "DB_USER",
         "DB_PASSWORD",
@@ -148,6 +149,33 @@ class EnvironmentWiringTests(SimpleTestCase):
 
     def test_development_uses_locmem(self):
         self.assertIn("LocMemCache", settings.CACHES["default"]["BACKEND"])
+
+    def test_production_defaults_to_sqlite(self):
+        result = run_python(
+            [
+                "from django.conf import settings",
+                "db = settings.DATABASES['default']",
+                "print(db['ENGINE'])",
+                "print(db['NAME'].name)",
+                "print(db['OPTIONS']['timeout'])",
+            ]
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(
+            result.stdout.split(),
+            ["django.db.backends.sqlite3", "db.sqlite3", "20"],
+        )
+
+    def test_sqlite_path_can_be_overridden(self):
+        result = run_python(
+            [
+                "from django.conf import settings",
+                "print(settings.DATABASES['default']['NAME'].as_posix())",
+            ],
+            {"DJANGO_DB_PATH": "var/site.sqlite3"},
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue(result.stdout.strip().endswith("/var/site.sqlite3"))
 
     def test_mysql_engine_and_charset(self):
         result = run_python(

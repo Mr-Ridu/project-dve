@@ -1,13 +1,14 @@
 # Phase 10 — SQLite → MySQL migration runbook
 
-Development uses SQLite (`db.sqlite3`). cPanel production must use MySQL or
-MariaDB. Nothing in the application code is SQLite-specific: every schema change
-goes through migrations, and the database is chosen purely by environment
-variables (`config/settings/base.py`).
+SQLite (`db.sqlite3`) is the default for development **and** the current cPanel
+deployment. Use this runbook when you choose MySQL/MariaDB or outgrow SQLite.
+Nothing in the application code is SQLite-specific: every schema change goes
+through migrations, and the database is chosen purely by environment variables
+(`config/settings/base.py`).
 
 This runbook has two uses:
 
-* **A. First production deploy** — create a fresh MySQL database and migrate.
+* **A. First MySQL deploy** — create a fresh MySQL database and migrate.
 * **B. Moving an existing SQLite deployment** — carry the data across.
 
 Both end with the same verification. Read the "Gotchas" section before starting;

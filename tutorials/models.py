@@ -27,6 +27,8 @@ class Category(models.Model):
 class Tutorial(models.Model):
     class VideoProvider(models.TextChoices):
         NONE = "none", "No video yet"
+        BUNNY = "bunny", "Bunny Stream (signed playback)"
+        YOUTUBE = "youtube", "YouTube (unlisted, privacy-enhanced embed)"
         URL = "url", "Plain URL (dev/preview only)"
 
     title = models.CharField(max_length=200)
@@ -46,12 +48,29 @@ class Tutorial(models.Model):
     duration_seconds = models.PositiveIntegerField(default=0)
     estimated_minutes = models.PositiveIntegerField(default=0)
     video_provider = models.CharField(
-        max_length=20, choices=VideoProvider.choices, default=VideoProvider.NONE
+        max_length=20,
+        choices=VideoProvider.choices,
+        default=VideoProvider.NONE,
+        help_text=(
+            "Bunny Stream is the signed production provider. YouTube plays an "
+            "unlisted video through the privacy-enhanced embed — the video id is "
+            "visible, so it suits low-budget content only. Plain URL is for local "
+            "preview only — it hands the stored URL to the browser unsigned."
+        ),
     )
     # Opaque reference for the chosen provider (asset id, external URL, ...).
     # Never exposed to the client directly — playback goes through the
     # authorization endpoint only.
-    video_ref = models.CharField(max_length=500, blank=True)
+    video_ref = models.CharField(
+        max_length=500,
+        blank=True,
+        help_text=(
+            "Bunny Stream: the video GUID from the Stream library (for example "
+            "32d140e2-4f4e-4a1e-9f0a-1b2c3d4e5f60), never a full URL. "
+            "YouTube: the 11-character video id or any watch/youtu.be/embed link. "
+            "Plain URL: the full file or manifest URL."
+        ),
+    )
     is_published = models.BooleanField(
         default=False, help_text="Unpublished tutorials are 404 for everyone, grants included."
     )

@@ -14,3 +14,12 @@ media/
 # Logs and workspace metadata
 *.log
 .freebuff/
+
+# Local design references and deploy bundle (may contain API keys)
+.cloud-attachments/
+dve-site.zip
+
+node_modules/
+
+# Passenger restart marker created by cpanel_setup.py
+tmp/

@@ -116,7 +116,7 @@ dropped 166 MB → 133 MB with no markup changes.
 
 | # | Item | Why it matters |
 |---|---|---|
-| 1 | **Bunny Stream credentials** — `BUNNY_STREAM_LIBRARY_ID`, `BUNNY_STREAM_SECURITY_KEY` | Playback intentionally answers 503 until they exist. Put them in the cPanel environment (or `.env`), never in the repo |
+| 1 | **Bunny Stream credentials** — `BUNNY_STREAM_LIBRARY_ID`, `BUNNY_STREAM_SECURITY_KEY` (playback) and `BUNNY_STREAM_API_KEY` (dashboard uploads) | Playback intentionally answers 503 until the first two exist; the dashboard **Video file** box is disabled without the third. Put them in the cPanel environment (or `.env`), never in the repo |
 | 2 | **Host facts** — Python version, MySQL version, Passenger worker count, upload limit, AutoSSL availability | Two of them can block deployment (see §0 of the deployment guide) |
 | 3 | **One manual keyboard pass** | The preview browser here has no window focus, so `:focus` never matched and the skip link could not be activated. Tab through the header → skip link appears → Enter jumps to `<main>`; Tab shows a purple ring on every control. This is the only a11y fix not proven interactively |
 | 4 | **Decide about the 51 legacy pages** | They are served as-is from the mirrored HTML. Their headings start at `h2` in places and their alt text is the original's. Re-authoring them is a content project, not a bug fix |

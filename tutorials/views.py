@@ -17,9 +17,10 @@ from django.urls import reverse
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_http_methods
 
+from core.throttle import rate_limit
 from .access import annotate_queryset, can_access, can_access_all
 from .models import Category, Tutorial, TutorialProgress
-from .providers import bunny
+from .providers import bunny, youtube
 from accounts.models import User as UserModel
 
 TOKEN_TTL_SECONDS = 300  # short-lived by design; expires <= 5 minutes
@@ -79,6 +80,7 @@ def _denied(request):
     return render(request, "tutorials/denied.html", status=403)
 
 
+@rate_limit("playback", as_json=True)
 @require_http_methods(["POST"])
 @csrf_protect
 def playback_authorize(request, slug):
@@ -116,6 +118,7 @@ def playback_authorize(request, slug):
     )
 
 
+@rate_limit("playback", as_json=True)
 @require_http_methods(["POST"])
 @csrf_protect
 def playback_redeem(request):
@@ -147,6 +150,23 @@ def playback_redeem(request):
         # Dev/preview only — signed URL straight from the stored reference.
         return JsonResponse({"provider": "url", "url": tutorial.video_ref})
 
+    if tutorial.video_provider == Tutorial.VideoProvider.YOUTUBE:
+        # Unlisted video: the reference must yield a real video id, otherwise the
+        # player would sit on a dead iframe with no explanation.
+        vid = youtube.video_id(tutorial.video_ref)
+        if not vid:
+            return JsonResponse(
+                {
+                    "detail": (
+                        "This tutorial's YouTube reference is not a video id or a "
+                        "YouTube video URL. Use the 11-character id from the URL."
+                    ),
+                    "code": "provider_not_configured",
+                },
+                status=503,
+            )
+        return JsonResponse({"provider": "youtube", "embed_url": youtube.embed_url(vid)})
+
     security_key = getattr(settings, "BUNNY_STREAM_SECURITY_KEY", "")
     library_id = getattr(settings, "BUNNY_STREAM_LIBRARY_ID", "")
     if tutorial.video_provider == Tutorial.VideoProvider.NONE or not (security_key and library_id and tutorial.video_ref):
@@ -175,6 +195,7 @@ MAX_SECONDS_PER_REPORT = 60  # per-request cap; a 1000s lie moves reality by 60
 COMPLETE_AT_PERCENT = 90  # industry-standard completion threshold
 
 
+@rate_limit("progress", as_json=True)
 @require_http_methods(["POST"])
 @csrf_protect
 def progress_report(request, slug):

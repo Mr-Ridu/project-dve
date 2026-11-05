@@ -1,6 +1,6 @@
 """Phase 8 tests: search, watch progress, category pages, player wiring."""
 from django.core.cache import cache
-from django.test import Client, TestCase
+from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
 from .tests_catalog import CatalogBase
@@ -15,16 +15,16 @@ class SearchTests(TestCase):
         self.assertEqual(r.status_code, 200)
         self.assertIn("Type what you are looking for", r.content.decode())
 
-    def test_accuracy_terms_reverse_for_legacy_pages(self):
+    def test_accuracy_terms_reverse_for_content_pages(self):
         """A term matching a page title/slug outranks mere body matches."""
-        r = self.client.get("/search/", {"s": "SARRP"})
+        r = self.client.get("/search/", {"s": "careers"})
         html = r.content.decode()
-        self.assertIn("sarrp", html.lower())  # result link present
-        # top result must be a SARRP page, not a random body mention
+        self.assertIn("careers", html.lower())  # result link present
+        # top result must be the careers page, not a random body mention
         first = html[html.find("<h2>Pages</h2>"):]
         first_link = first[first.find('href="/') + 7:]
         first_link = first_link[:first_link.find("/")]
-        self.assertTrue(first_link.startswith("sarrp"), first_link)
+        self.assertEqual(first_link, "careers")
 
     def test_no_results_message(self):
         r = self.client.get("/search/", {"s": "xyzzyspooncompareToNothing"})
@@ -38,12 +38,13 @@ class SearchTests(TestCase):
 
     def test_search_page_never_leaks_third_party(self):
         from core.tests import FORBIDDEN
-        r = self.client.get("/search/", {"s": "xstrahl"})
+        r = self.client.get("/search/", {"s": "steel"})
         html = r.content.decode()
         for needle in FORBIDDEN:
             self.assertNotIn(needle, html, needle)
 
 
+@override_settings(TUTORIALS_REQUIRE_GRANTS=True)
 class ProgressTests(CatalogBase):
     """POST heartbeats. Access first; numbers second; capped per request."""
 
@@ -143,11 +144,15 @@ class CategoryPage(CatalogBase):
             reverse("tutorials:category", args=["nope"])).status_code, 404)
 
 
+@override_settings(TUTORIALS_REQUIRE_GRANTS=True)
 class PlayerWiring(CatalogBase):
     def test_detail_carries_authorize_and_progress_urls(self):
         client = self.login(self.approved_with_grant)
         from tutorials.models import TutorialAccess
 
+        self.published.video_provider = "url"
+        self.published.video_ref = "https://example.invalid/video.mp4"
+        self.published.save()
         TutorialAccess.objects.create(user=self.approved_with_grant, tutorial=self.published)
         r = client.get(reverse("tutorials:detail", args=["radiant-aura-setup"]))
         self.assertEqual(r.status_code, 200)

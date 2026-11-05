@@ -6,7 +6,7 @@ tampering, progress-never-authorizes, and the playback endpoint
 (method/CSRF/authorization semantics).
 """
 from django.core.cache import cache
-from django.test import Client, TestCase
+from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
 from accounts.models import AuditEvent, User
@@ -55,7 +55,9 @@ class CatalogBase(TestCase):
         return c
 
 
+@override_settings(TUTORIALS_REQUIRE_GRANTS=True)
 class AccessMatrix(CatalogBase):
+    """The strict per-tutorial model, still available behind the setting."""
     def test_published_detail_for_appropriate_users(self):
         TutorialAccess.objects.create(user=self.approved_with_grant, tutorial=self.published)
         cases = [
@@ -140,6 +142,40 @@ class AccessMatrix(CatalogBase):
         self.assertNotContains(response, "Draft internals")
 
 
+class OpenLibraryForApprovedUsers(CatalogBase):
+    """Default model: approval opens every published tutorial, no grant needed.
+
+    The manual grant tools stay in place for the opt-in strict mode
+    (TUTORIALS_REQUIRE_GRANTS=True), exercised by AccessMatrix above.
+    """
+
+    def test_approved_user_without_grant_opens_the_tutorial(self):
+        response = self.login(self.approved_no_grant).get(
+            reverse("tutorials:detail", args=["radiant-aura-setup"])
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_approved_user_gets_playback_token_without_grant(self):
+        response = self.login(self.approved_no_grant).post(
+            reverse("tutorials:authorize", args=["radiant-aura-setup"])
+        )
+        self.assertEqual(response.status_code, 201)
+
+    def test_approval_status_is_still_required(self):
+        for user in (self.pending, self.rejected):
+            with self.subTest(user=user.username):
+                response = self.login(user).get(
+                    reverse("tutorials:detail", args=["radiant-aura-setup"])
+                )
+                self.assertEqual(response.status_code, 403)
+
+    def test_catalog_marks_the_library_available(self):
+        response = self.login(self.approved_no_grant).get(reverse("tutorials:list"))
+        self.assertContains(response, "Available")
+        self.assertNotContains(response, "Locked")
+
+
+@override_settings(TUTORIALS_REQUIRE_GRANTS=True)
 class PlaybackEndpoint(CatalogBase):
     def grant(self, user, tutorial):
         TutorialAccess.objects.create(user=user, tutorial=tutorial)

@@ -1,17 +1,45 @@
 {% extends "base.html" %}
 
-{% block title %}{% if tutorial %}Edit{% else %}New{% endif %} tutorial — Staff dashboard{% endblock %}
+{% block title %}{% if tutorial %}Edit tutorial{% else %}New tutorial{% endif %} | Staff dashboard{% endblock %}
 
 {% block content %}
-<div id="main-content">
-    <div class="container" style="padding-top:58px;">
-        <h1 style="padding-bottom:10px;">{% if tutorial %}Edit “{{ tutorial.title }}”{% else %}New tutorial{% endif %}</h1>
-        {% include "dashboard/_staffnav.html" %}
-        <form method="post" enctype="multipart/form-data" style="max-width:640px;">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="et_pb_button" style="margin-top:20px;">Save</button>
-        </form>
+<section class="bg-brand text-white">
+  <div class="mx-auto max-w-6xl px-4 py-12">
+    <p class="text-sm font-bold uppercase tracking-wider text-accent">
+      <a href="{% url 'dashboard:tutorial_list' %}" class="hover:underline">Tutorials</a>
+      {% if tutorial %} / {{ tutorial.title }}{% endif %}
+    </p>
+    <h1 class="mt-2 text-3xl font-bold md:text-4xl">{% if tutorial %}Edit “{{ tutorial.title }}”{% else %}New tutorial{% endif %}</h1>
+  </div>
+</section>
+
+<div class="mx-auto max-w-6xl px-4 py-12">
+  {% include "dashboard/_staffnav.html" %}
+
+  <form method="post" enctype="multipart/form-data" class="max-w-3xl space-y-6 border border-neutral-200 p-6">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+    <div class="border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">
+      {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
     </div>
+    {% endif %}
+
+    {% for field in form %}
+    <div>
+      <label for="{{ field.id_for_label }}" class="block text-sm font-semibold text-brand">
+        {{ field.label }}{% if field.field.required %} <span class="text-red-700">*</span>{% endif %}
+      </label>
+      {{ field }}
+      {% if field.help_text %}<p class="mt-1 text-xs text-neutral-500">{{ field.help_text }}</p>{% endif %}
+      {% for error in field.errors %}<p class="mt-1 text-sm text-red-700">{{ error }}</p>{% endfor %}
+    </div>
+    {% endfor %}
+
+    <div class="flex flex-wrap items-center gap-4 border-t border-neutral-200 pt-6">
+      <button type="submit" class="cursor-pointer rounded bg-accent px-6 py-2 text-sm font-bold uppercase text-brand hover:opacity-90">Save</button>
+      <a href="{% url 'dashboard:tutorial_list' %}" class="text-sm font-bold uppercase text-neutral-500 hover:text-brand">Cancel</a>
+    </div>
+  </form>
 </div>
 {% endblock %}

@@ -15,6 +15,7 @@ urlpatterns = [
     path("users/<int:pk>/revoke/<int:tutorial_pk>/", views.revoke_access, name="revoke"),
     path("tutorials/", views.tutorial_list, name="tutorial_list"),
     path("tutorials/new/", views.tutorial_edit, name="tutorial_create"),
+    path("tutorials/<int:pk>/access/", views.tutorial_access, name="tutorial_access"),
     path("tutorials/<int:pk>/edit/", views.tutorial_edit, name="tutorial_edit"),
     path("tutorials/<int:pk>/delete/", views.tutorial_delete, name="tutorial_delete"),
     path("categories/", views.category_list, name="category_list"),

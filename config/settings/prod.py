@@ -6,7 +6,9 @@ Requires environment variables:
 Optional:
   DJANGO_SSL_REDIRECT      "1" (default) to force HTTPS
   DJANGO_HSTS_SECONDS      default 0; raise only after HTTPS is verified
-  DB_ENGINE/DB_NAME/DB_USER/DB_PASSWORD/DB_HOST/DB_PORT
+  DB_ENGINE=mysql + DB_NAME/DB_USER/DB_PASSWORD/DB_HOST/DB_PORT
+                            (optional; SQLite is the default, stored at
+                            DJANGO_DB_PATH or BASE_DIR/db.sqlite3)
 """
 from django.core.exceptions import ImproperlyConfigured
 

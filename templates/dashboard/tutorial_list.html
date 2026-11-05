@@ -1,34 +1,70 @@
 {% extends "base.html" %}
 
-{% block title %}Tutorials — Staff dashboard{% endblock %}
+{% block title %}Tutorials | Staff dashboard{% endblock %}
 
 {% block content %}
-<div id="main-content">
-    <div class="container" style="padding-top:58px;">
-        <h1 style="padding-bottom:10px;">Tutorials</h1>
-        {% include "dashboard/_staffnav.html" %}
-        <p><a class="et_pb_button" style="padding:4px 14px;" href="{% url 'dashboard:tutorial_create' %}">+ New tutorial</a></p>
+<section class="bg-brand text-white">
+  <div class="mx-auto max-w-6xl px-4 py-12">
+    <p class="text-sm font-bold uppercase tracking-wider text-accent">Staff area</p>
+    <h1 class="mt-2 text-3xl font-bold md:text-4xl">Tutorials</h1>
+    <p class="mt-3 text-white/85">Publish, edit and retire tutorial records. Drafts are hidden from the public library.</p>
+  </div>
+</section>
 
-        <table border="1" cellpadding="6" cellspacing="0" style="margin-top:10px;">
-            <tr><th scope="col">Title</th><th scope="col">Category</th><th scope="col">Provider</th><th scope="col">State</th><th scope="col">Grants</th><th scope="col">Completed</th><th scope="col"></th></tr>
-            {% for t in tutorials %}
-                <tr>
-                    <td>{{ t.title }}</td>
-                    <td>{{ t.category|default:"—" }}</td>
-                    <td>{{ t.get_video_provider_display }}</td>
-                    <td>{{ t.is_published|yesno:"published,draft" }}</td>
-                    <td>{{ t.grant_count }}</td>
-                    <td>{{ t.completed_count }}</td>
-                    <td>
-                        <a href="{% url 'dashboard:tutorial_edit' t.pk %}">Edit</a> ·
-                        <form method="post" action="{% url 'dashboard:tutorial_delete' t.pk %}" style="display:inline;">
-                            {% csrf_token %}
-                            <button type="submit" style="border:none;background:none;color:#a00;cursor:pointer;">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-            {% endfor %}
-        </table>
-    </div>
+<div class="mx-auto max-w-6xl px-4 py-12">
+  {% include "dashboard/_staffnav.html" %}
+
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <p class="text-sm text-neutral-700">{{ tutorials|length }} tutorial{{ tutorials|length|pluralize }} in the library</p>
+    <a href="{% url 'dashboard:tutorial_create' %}" class="rounded bg-accent px-6 py-2 text-sm font-bold uppercase text-brand hover:opacity-90">+ New tutorial</a>
+  </div>
+
+  <div class="mt-6 overflow-x-auto border border-neutral-200">
+    <table class="w-full text-left text-sm">
+      <thead class="bg-neutral-100 text-xs font-bold uppercase tracking-wider text-neutral-500">
+        <tr>
+          <th scope="col" class="px-4 py-3">Title</th>
+          <th scope="col" class="px-4 py-3">Category</th>
+          <th scope="col" class="px-4 py-3">Provider</th>
+          <th scope="col" class="px-4 py-3">State</th>
+          <th scope="col" class="px-4 py-3">Grants</th>
+          <th scope="col" class="px-4 py-3">Completed</th>
+          <th scope="col" class="px-4 py-3"></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for t in tutorials %}
+        <tr class="border-t border-neutral-200">
+          <td class="px-4 py-3 font-semibold text-brand">{{ t.title }}</td>
+          <td class="px-4 py-3 text-neutral-700">{{ t.category|default:"—" }}</td>
+          <td class="px-4 py-3 text-neutral-700">{{ t.get_video_provider_display }}</td>
+          <td class="px-4 py-3">
+            {% if t.is_published %}
+            <span class="rounded bg-accent px-2 py-1 text-xs font-bold uppercase tracking-wider text-brand">published</span>
+            {% else %}
+            <span class="rounded bg-neutral-100 px-2 py-1 text-xs font-bold uppercase tracking-wider text-neutral-500">draft</span>
+            {% endif %}
+          </td>
+          <td class="px-4 py-3 text-neutral-700">{{ t.grant_count }}</td>
+          <td class="px-4 py-3 text-neutral-700">{{ t.completed_count }}</td>
+          <td class="px-4 py-3">
+            <div class="flex flex-wrap items-center gap-3">
+              <a href="{% url 'dashboard:tutorial_access' t.pk %}" class="font-bold uppercase text-brand hover:text-accent">Access</a>
+              <a href="{% url 'dashboard:tutorial_edit' t.pk %}" class="font-bold uppercase text-brand hover:text-accent">Edit</a>
+              <form method="post" action="{% url 'dashboard:tutorial_delete' t.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="cursor-pointer font-bold uppercase text-red-700 hover:underline">Delete</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="7" class="px-4 py-8 text-center text-neutral-500">No tutorials yet. Create the first one.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 {% endblock %}

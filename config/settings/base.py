@@ -63,15 +63,18 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "core.context_processors.company",
             ],
         },
     },
 ]
 
 # --- Database ---------------------------------------------------------------
-# SQLite in development; MySQL 8.0.11+/MariaDB 10.5+ on cPanel, selected with
-# DB_ENGINE=mysql plus the connection variables. No SQLite-specific behaviour
-# is used in application code (see docs/PHASE1_INSPECTION_REPORT.md §7).
+# SQLite is the default everywhere, including cPanel. The database file lives
+# outside public_html, so the web server cannot serve it. Set DB_ENGINE=mysql
+# plus the connection variables to move to MySQL 8.0.11+/MariaDB 10.5+ later.
+# No SQLite-specific behaviour is used in application code (see
+# docs/PHASE1_INSPECTION_REPORT.md §7).
 if os.environ.get("DB_ENGINE", "sqlite").strip().lower() == "mysql":
     DATABASES = {
         "default": {
@@ -87,10 +90,16 @@ if os.environ.get("DB_ENGINE", "sqlite").strip().lower() == "mysql":
         }
     }
 else:
+    sqlite_path = Path(os.environ.get("DJANGO_DB_PATH") or (BASE_DIR / "db.sqlite3"))
+    if not sqlite_path.is_absolute():
+        sqlite_path = BASE_DIR / sqlite_path
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
+            "NAME": sqlite_path,
+            # Passenger may handle a few writes at once; wait for the lock
+            # instead of failing immediately with "database is locked".
+            "OPTIONS": {"timeout": 20},
         }
     }
 
@@ -110,6 +119,13 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
+# --- Tutorial access ---------------------------------------------------------
+# Approved accounts open the whole published library by default: no manual
+# per-tutorial grants are needed. Set TUTORIALS_REQUIRE_GRANTS=1 to restore the
+# stricter model (access_all_tutorials flag or an explicit TutorialAccess row).
+# The dashboard grant tools and the flag stay available either way.
+TUTORIALS_REQUIRE_GRANTS = env_bool("TUTORIALS_REQUIRE_GRANTS", False)
+
 # --- Internationalisation ---------------------------------------------------
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
@@ -121,12 +137,17 @@ USE_TZ = True
 # converted templates need only {% static %} tags around existing paths.
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
-STATIC_ROOT = BASE_DIR / "staticfiles"  # collectstatic target for cPanel
+# collectstatic target. On cPanel without SSH, point this at a public_html
+# subfolder (DJANGO_STATIC_ROOT=/home/USER/public_html/static) so the web
+# server serves the files without a symlink.
+STATIC_ROOT = Path(os.environ.get("DJANGO_STATIC_ROOT") or (BASE_DIR / "staticfiles"))
 
 # media/ is for public uploads only (e.g. tutorial thumbnails).
 # Private video must never live here — see report §8/§9.
 MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+# Public uploads only (tutorial thumbnails). Point DJANGO_MEDIA_ROOT at
+# /home/USER/public_html/media on cPanel so thumbnails are web-served.
+MEDIA_ROOT = Path(os.environ.get("DJANGO_MEDIA_ROOT") or (BASE_DIR / "media"))
 
 # --- Upload limits (Phase 9 security checklist) ------------------------------
 # Django refuses requests above DATA_UPLOAD_MAX_MEMORY_SIZE and spills files
@@ -141,6 +162,23 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
 # than handing out an unsigned embed.
 BUNNY_STREAM_LIBRARY_ID = os.environ.get("BUNNY_STREAM_LIBRARY_ID", "")
 BUNNY_STREAM_SECURITY_KEY = os.environ.get("BUNNY_STREAM_SECURITY_KEY", "")
+# Management key for dashboard uploads (Bunny -> Stream -> library -> API).
+# Different value from the security key above, which only signs playback.
+# Empty means "upload disabled": the dashboard form explains what is missing.
+BUNNY_STREAM_API_KEY = os.environ.get("BUNNY_STREAM_API_KEY", "")
+
+# --- Rate limits ------------------------------------------------------------
+# {scope: (max_requests, window_seconds)}, consumed by core.throttle. Counted
+# per (action, client IP, account) in the cache; a burst past the limit gets an
+# honest 429. These are brakes against hammering, not authorization.
+RATE_LIMITS = {
+    "auth": (5, 300),          # login/register failures (accounts.throttle)
+    "playback": (60, 300),     # authorize + redeem together: ~30 plays / 5 min
+    "progress": (120, 300),    # watch heartbeats
+    "forms": (30, 300),        # form stub submissions
+    "search": (60, 300),       # search queries
+    "upload": (30, 900),       # dashboard tutorial saves (uploads included)
+}
 
 # --- Cache -------------------------------------------------------------------
 # The playback handshake stores a one-time token in the cache. LocMem is

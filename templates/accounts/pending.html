@@ -1,21 +1,11 @@
 {% extends "base.html" %}
 
-{% block title %}Awaiting approval{% endblock %}
+{% block title %}Awaiting approval | {{ company.name }}{% endblock %}
 
 {% block content %}
-<div id="main-content">
-    <div class="container" style="max-width:640px;padding-top:58px;">
-        <h1 style="padding-bottom:20px;">Account not yet approved</h1>
-        <p>Your account exists, but an administrator has not approved it for
-        tutorial access. If you believe this is an error, contact the site team.</p>
-        <p>You are signed in — you can browse the public site meanwhile.</p>
-        <p>
-            <a href="{% url 'core:home' %}" class="et_pb_button">Return to the home page</a>
-        </p>
-        <form method="post" action="{% url 'accounts:logout' %}">
-            {% csrf_token %}
-            <button type="submit" class="et_pb_button" style="margin-top:20px;">Sign out</button>
-        </form>
-    </div>
-</div>
+<section class="mx-auto max-w-2xl px-4 py-24">
+  <h1 class="text-3xl font-bold text-brand">Awaiting approval</h1>
+  <p class="mt-4 text-neutral-700">Your account has been created, but it is not yet approved for tutorial access. You will be able to open tutorials once an administrator approves it.</p>
+  <p class="mt-4 text-neutral-700">If you believe this is an error, <a href="{% url 'core:contact' %}" class="font-semibold text-brand underline hover:text-accent">contact the site team</a>.</p>
+</section>
 {% endblock %}

@@ -1,45 +1,49 @@
 {% extends "base.html" %}
 
-{% block title %}Search{% endblock %}
+{% block title %}Search | {{ company.name }}{% endblock %}
 
 {% block content %}
-<div id="main-content">
-    <div class="container" style="padding-top:58px;">
-        <h1 style="padding-bottom:10px;">Search</h1>
+<section class="mx-auto max-w-6xl px-4 py-16">
+  <h1 class="text-4xl font-bold text-brand">Search</h1>
 
-        <form method="get" action="{% url 'core:search' %}" style="margin-bottom:24px;">
-            <label for="site-search" class="screen-reader-text">Search the site</label>
-            <input id="site-search" type="search" name="s" value="{{ query }}" placeholder="Search the site" style="padding:6px;width:280px;max-width:100%;" />
-            <button type="submit" class="et_pb_button" style="padding:6px 14px;">Go</button>
-        </form>
+  <form method="get" action="{% url 'core:search' %}" role="search" class="mt-8 flex flex-col gap-3 sm:flex-row">
+    <label for="site-search" class="sr-only">Search the site</label>
+    <input id="site-search" type="search" name="s" value="{{ query }}" placeholder="Search products, pages and tutorials" class="w-full border border-neutral-300 px-4 py-3">
+    <button type="submit" class="rounded bg-brand px-6 py-3 text-sm font-bold uppercase text-white hover:bg-accent hover:text-brand">Search</button>
+  </form>
 
-        {% if searched %}
-            {% if tutorials or legacy_results %}
-                {% if tutorials %}
-                    <h2>Tutorials</h2>
-                    <ul>
-                        {% for t in tutorials %}
-                            <li><a href="{% url 'tutorials:detail' t.slug %}">{{ t.title }}</a></li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-                {% if legacy_results %}
-                    <h2>Pages</h2>
-                    <ul style="margin-top:8px;">
-                        {% for r in legacy_results %}
-                            <li style="margin-bottom:10px;">
-                                <a href="/{{ r.slug }}/">{{ r.title|default:r.slug }}</a>
-                                <br /><small style="color:#666;">{{ r.snippet }}</small>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-            {% else %}
-                <p>No results for “{{ query }}”.</p>
-            {% endif %}
-        {% else %}
-            <p>Type what you are looking for — tutorial titles, product pages, and everything in between.</p>
-        {% endif %}
-    </div>
-</div>
+  {% if searched %}
+    <p class="mt-8 text-neutral-700">Results for &ldquo;{{ query }}&rdquo;</p>
+
+    {% if tutorials %}
+    <h2>Tutorials</h2>
+    <ul class="mt-4 space-y-4">
+      {% for t in tutorials %}
+      <li>
+        <a href="{% url 'tutorials:detail' t.slug %}" class="font-bold text-brand underline hover:text-accent">{{ t.title }}</a>
+        <p class="text-sm text-neutral-700">{{ t.description }}</p>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if legacy_results %}
+    <h2>Pages</h2>
+    <ul class="mt-4 space-y-4">
+      {% for r in legacy_results %}
+      <li>
+        <a href="/{{ r.slug }}/" class="font-bold text-brand underline hover:text-accent">{{ r.title }}</a>
+        <p class="text-sm text-neutral-700">{{ r.snippet }}</p>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if not tutorials and not legacy_results %}
+    <p class="mt-8 text-neutral-700">No results found. Try different words.</p>
+    {% endif %}
+  {% else %}
+    <p class="mt-8 text-neutral-700">Type what you are looking for above.</p>
+  {% endif %}
+</section>
 {% endblock %}

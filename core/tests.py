@@ -1,9 +1,9 @@
-"""Tests for the Phase 3 template conversion.
+"""Tests for the template conversion.
 
-Covers: all 56 original URLs still resolve; the converted core pages carry the
-original design's structure; static references resolve to real files; no
-third-party endpoint, tracker or external form action is served; CSRF protects
-the local form stub; unknown/traversal URLs return the custom 404.
+Covers: the live industrial pages resolve and the removed medical pages are
+gone; the converted core pages carry the site shell; static references resolve
+to real files; no third-party endpoint, tracker or external form action is
+served; CSRF protects the local form stub; unknown/traversal URLs return 404.
 """
 import re
 
@@ -11,26 +11,21 @@ from django.contrib.staticfiles import finders
 from django.test import Client, TestCase
 from django.urls import reverse
 
-# All 56 mirrored pages (legacy/ file stems).
-ALL_SLUGS = [
-    "404", "about", "accessibility-statement", "agb", "benign-conditions",
-    "benign-hyperproliferative-diseases", "blog", "cabinet-irradiators",
-    "careers", "case-studies", "category-type-pres",
-    "characterization-and-biological-validation-of-photon-flash", "cix-flash",
-    "cix2", "cix3", "clinical-systems", "contact-us", "cookie-policy",
-    "events", "for-patients", "history-of-x-rays",
-    "image-guided-irradiators", "impressum", "index",
-    "introducing-the-sarrp-education-series-expert-training-from-penn-medicine-xstrahl",
-    "legal-notices", "news", "nmsc-webcast",
-    "non-melanoma-skin-cancer-nmsc", "palliative-applications",
-    "palliative-care", "presentations", "privacy-policy",
-    "product-information", "publications", "radiant", "radiation-research",
-    "research-reviews", "sarrp-beamline", "sarrp-education-and-training-series",
-    "sarrp-flash", "sarrp", "search", "service-support", "skin-cancer",
-    "smart-rad-overview", "support", "terms-conditions", "user-spotlights",
-    "vet", "xenx", "xstrahl-100", "xstrahl-150", "xstrahl-200",
-    "xstrahl-300",
-    "xstrahl-marks-30-years-of-advancing-radiation-therapy-on-world-radiotherapy-awareness-day",
+# Pages the industrial site keeps live.
+LIVE_SLUGS = [
+    "about", "accessibility-statement", "careers", "contact-us", "cookie-policy",
+    "legal-notices", "privacy-policy", "product-information", "service-support",
+    "terms-conditions",
+]
+
+# Former medical URLs that must no longer resolve after the rebrand.
+REMOVED_SLUGS = [
+    "clinical-systems", "radiant", "xstrahl-100", "xstrahl-150", "xstrahl-200",
+    "xstrahl-300", "radiation-research", "sarrp", "sarrp-flash", "sarrp-beamline",
+    "xenx", "cix2", "cix3", "cix-flash", "image-guided-irradiators",
+    "cabinet-irradiators", "skin-cancer", "non-melanoma-skin-cancer-nmsc",
+    "benign-conditions", "palliative-care", "for-patients", "events", "news",
+    "presentations", "case-studies", "publications", "vet", "impressum", "agb",
 ]
 
 CORE_URLS = {
@@ -76,15 +71,19 @@ class ScaffoldTests(TestCase):
 
 
 class UrlCoverageTests(TestCase):
-    """Every original page URL must keep working."""
+    """The live pages resolve; the removed medical pages return 404."""
 
-    def test_all_56_original_urls_return_200(self):
+    def test_live_page_urls_return_200(self):
         bad = []
-        for slug in ALL_SLUGS:
+        for slug in LIVE_SLUGS:
             r = self.client.get(url_for(slug))
             if r.status_code != 200:
                 bad.append((url_for(slug), r.status_code))
         self.assertEqual(bad, [], f"URLs not returning 200: {bad}")
+
+    def test_removed_medical_urls_are_gone(self):
+        still_live = [slug for slug in REMOVED_SLUGS if self.client.get(f"/{slug}/").status_code != 404]
+        self.assertEqual(still_live, [], f"removed pages still resolving: {still_live}")
 
     def test_core_aliases_and_named_urls(self):
         for name in ("core:home", "core:about", "core:products",
@@ -106,7 +105,7 @@ class DesignFidelityTests(TestCase):
             # from the header, so the kept CTA button now marks the shell.
             "Request Support",
             "Techno Mate Technologies",  # footer/site name
-            'id="main-content"',
+            'id="site-main"',
             "Join Our Newsletter",
         ]
         for slug in CORE_URLS:
@@ -118,7 +117,7 @@ class DesignFidelityTests(TestCase):
         html = self.client.get("/").content.decode("utf-8", "replace")
         self.assertIn('<body class="home', html)
         html = self.client.get("/about/").content.decode("utf-8", "replace")
-        self.assertIn("page-id-72", html)
+        self.assertIn('class="page-about', html)
 
     def test_no_unrendered_template_tags(self):
         for slug in CORE_URLS:
@@ -147,16 +146,17 @@ class StaticResolutionTests(TestCase):
                 checked.add(ref)
                 if not finders.find(ref):
                     missing.append(ref)
-        self.assertGreater(len(checked), 20, "too few static references parsed")
+        for required in ("css/app.css", "js/app.js"):
+            self.assertIn(required, checked, "shell lost a required asset")
         self.assertEqual(missing, [], f"missing static files: {missing}")
 
 
 class SanitizationTests(TestCase):
     """No third-party endpoint, tracker or external form action may be served."""
 
-    def test_all_56_pages_are_clean(self):
+    def test_all_live_pages_are_clean(self):
         offenders = []
-        for slug in ALL_SLUGS:
+        for slug in LIVE_SLUGS:
             html = self.client.get(url_for(slug)).content.decode("utf-8", "replace")
             for needle in FORBIDDEN:
                 if needle in html:
@@ -165,7 +165,7 @@ class SanitizationTests(TestCase):
 
     def test_no_external_form_actions(self):
         ext = re.compile(r"<form\b[^>]*\baction=[\"']https?://", re.I)
-        for slug in ALL_SLUGS:
+        for slug in LIVE_SLUGS:
             html = self.client.get(url_for(slug)).content.decode("utf-8", "replace")
             self.assertIsNone(ext.search(html), f"{slug}: external form action")
 

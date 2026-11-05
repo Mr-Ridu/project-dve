@@ -1,36 +1,74 @@
 {% extends "base.html" %}
 
-{% block title %}Categories — Staff dashboard{% endblock %}
+{% block title %}Categories | Staff dashboard{% endblock %}
 
 {% block content %}
-<div id="main-content">
-    <div class="container" style="padding-top:58px;">
-        <h1 style="padding-bottom:10px;">Categories</h1>
-        {% include "dashboard/_staffnav.html" %}
+<section class="bg-brand text-white">
+  <div class="mx-auto max-w-6xl px-4 py-12">
+    <p class="text-sm font-bold uppercase tracking-wider text-accent">Staff area</p>
+    <h1 class="mt-2 text-3xl font-bold md:text-4xl">Categories</h1>
+    <p class="mt-3 text-white/85">Categories group tutorials in the public library and control their display order.</p>
+  </div>
+</section>
 
-        <form method="post" style="margin:14px 0;">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="et_pb_button" style="padding:4px 14px;">Add category</button>
-        </form>
+<div class="mx-auto max-w-6xl px-4 py-12">
+  {% include "dashboard/_staffnav.html" %}
 
-        <table border="1" cellpadding="6" cellspacing="0">
-            <tr><th scope="col">Name</th><th scope="col">Slug</th><th scope="col">Ordering</th><th scope="col">Tutorials</th><th scope="col"></th></tr>
-            {% for c in categories %}
-                <tr>
-                    <td>{{ c.name }}</td>
-                    <td>{{ c.slug }}</td>
-                    <td>{{ c.ordering }}</td>
-                    <td>{{ c.tutorial_count }}</td>
-                    <td>
-                        <form method="post" action="{% url 'dashboard:category_delete' c.pk %}">
-                            {% csrf_token %}
-                            <button type="submit" style="border:none;background:none;color:#a00;cursor:pointer;">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-            {% endfor %}
-        </table>
+  <div class="grid gap-10 lg:grid-cols-3">
+    <form method="post" class="space-y-4 border border-neutral-200 bg-neutral-50 p-6">
+      {% csrf_token %}
+      <h2 class="text-lg font-bold text-brand">Add a category</h2>
+
+      {% if form.non_field_errors %}
+      <div class="border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">
+        {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+      </div>
+      {% endif %}
+
+      {% for field in form %}
+      <div>
+        <label for="{{ field.id_for_label }}" class="block text-sm font-semibold text-brand">{{ field.label }}</label>
+        {{ field }}
+        {% for error in field.errors %}<p class="mt-1 text-sm text-red-700">{{ error }}</p>{% endfor %}
+      </div>
+      {% endfor %}
+
+      <button type="submit" class="cursor-pointer rounded bg-accent px-6 py-2 text-sm font-bold uppercase text-brand hover:opacity-90">Add category</button>
+    </form>
+
+    <div class="overflow-x-auto border border-neutral-200 lg:col-span-2">
+      <table class="w-full text-left text-sm">
+        <thead class="bg-neutral-100 text-xs font-bold uppercase tracking-wider text-neutral-500">
+          <tr>
+            <th scope="col" class="px-4 py-3">Name</th>
+            <th scope="col" class="px-4 py-3">Slug</th>
+            <th scope="col" class="px-4 py-3">Ordering</th>
+            <th scope="col" class="px-4 py-3">Tutorials</th>
+            <th scope="col" class="px-4 py-3"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in categories %}
+          <tr class="border-t border-neutral-200">
+            <td class="px-4 py-3 font-semibold text-brand">{{ c.name }}</td>
+            <td class="px-4 py-3 text-neutral-700">{{ c.slug }}</td>
+            <td class="px-4 py-3 text-neutral-700">{{ c.ordering }}</td>
+            <td class="px-4 py-3 text-neutral-700">{{ c.tutorial_count }}</td>
+            <td class="px-4 py-3">
+              <form method="post" action="{% url 'dashboard:category_delete' c.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="cursor-pointer font-bold uppercase text-red-700 hover:underline">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" class="px-4 py-8 text-center text-neutral-500">No categories yet.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
+  </div>
 </div>
 {% endblock %}

@@ -1,31 +1,37 @@
 {% extends "base.html" %}
 
-{% block title %}Tutorial Library{% endblock %}
-
-{% block body_class %}et_pb_pagebuilder_layout page-template-default single single-page{% endblock %}
+{% block title %}Tutorials | {{ company.name }}{% endblock %}
 
 {% block content %}
-<div id="main-content">
-    <div class="container" style="padding-top:58px;">
-        <h1 style="padding-bottom:10px;">Tutorial Library</h1>
-        {% if request.user.is_authenticated and not request.user.is_approved %}
-        <p>Your account has not been approved yet — tutorials are listed below, but playback stays locked until an administrator approves you.</p>
-        {% elif not request.user.is_authenticated %}
-        <p><a href="{% url 'accounts:login' %}?next=/tutorials/">Sign in</a> to see which tutorials you can open.</p>
-        {% endif %}
+<section class="bg-brand text-white">
+  <div class="mx-auto max-w-6xl px-4 py-20">
+    <p class="text-sm font-bold uppercase tracking-wider text-accent">Home / Tutorials</p>
+    <h1 class="mt-3 text-4xl font-bold md:text-5xl">Tutorials</h1>
+    <p class="mt-6 max-w-3xl text-lg text-white/85">Video tutorials for our industrial equipment and systems.</p>
+  </div>
+</section>
 
-        {% for group in groups %}
-            {% if group.category %}
-                <h2 style="padding-top:24px;">{{ group.category.name }}</h2>
-            {% else %}
-                <h2 style="padding-top:24px;">Other tutorials</h2>
-            {% endif %}
-            {% include "tutorials/_grid.html" with tutorials=group.items %}
-        {% endfor %}
+<section class="mx-auto max-w-6xl px-4 py-16">
+  {% if not user.is_authenticated %}
+  <p class="mb-10 text-neutral-700"><a href="{% url 'accounts:login' %}" class="font-semibold text-brand underline hover:text-accent">Sign in</a> to watch tutorials. New accounts need approval first.</p>
+  {% endif %}
 
-        {% if not groups %}
-            <p>No tutorials have been published yet.</p>
-        {% endif %}
+  {% for group in groups %}
+  <div class="mb-12">
+    <h2 class="text-2xl font-bold uppercase text-brand">{% if group.category %}{{ group.category.name }}{% else %}Other{% endif %}</h2>
+    <div class="mt-6 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+      {% for tutorial in group.items %}
+      <a href="{% url 'tutorials:detail' tutorial.slug %}" class="block border border-neutral-200 p-6 hover:border-accent">
+        <h3 class="text-lg font-bold text-brand">{{ tutorial.title }}</h3>
+        {% if tutorial.estimated_minutes %}<p class="mt-1 text-sm text-neutral-500">{{ tutorial.estimated_minutes }} min</p>{% endif %}
+        <p class="mt-3 text-neutral-700">{{ tutorial.description|truncatewords:25 }}</p>
+        <p class="mt-4 text-sm font-semibold {% if tutorial.user_has_access %}text-brand{% else %}text-neutral-500{% endif %}">{% if tutorial.user_has_access %}Available{% else %}Locked{% endif %}</p>
+      </a>
+      {% endfor %}
     </div>
-</div>
+  </div>
+  {% empty %}
+  <p class="text-neutral-700">No tutorials are published yet.</p>
+  {% endfor %}
+</section>
 {% endblock %}

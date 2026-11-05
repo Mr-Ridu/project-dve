@@ -1,28 +1,37 @@
 {% extends "base.html" %}
 
-{% block title %}Sign in{% endblock %}
+{% block title %}Sign in | {{ company.name }}{% endblock %}
 
 {% block content %}
-<div id="main-content">
-    <div class="container" style="max-width:420px;padding-top:58px;">
-        <h1 style="padding-bottom:20px;">Sign in</h1>
-        {% if messages %}
-            {% for message in messages %}
-                <p class="auth-message auth-message-{{ message.tags }}">{{ message }}</p>
-            {% endfor %}
-        {% endif %}
-        <form method="post" novalidate>
-            {% csrf_token %}
-            <input type="hidden" name="next" value="{{ next|escape }}" />
-            {% for field in form %}
-                <p>
-                    <label for="{{ field.id_for_label }}">{{ field.label }}</label><br />
-                    {{ field }} {{ field.errors }}
-                </p>
-            {% endfor %}
-            <p><button type="submit" class="et_pb_button">Sign in</button></p>
-        </form>
-        <p>New here? <a href="{% url 'accounts:register' %}">Create an account</a>.</p>
+<section class="mx-auto max-w-md px-4 py-16">
+  <h1 class="text-3xl font-bold text-brand">Sign in</h1>
+
+  {% if messages %}
+  <div class="mt-6 space-y-2">
+    {% for message in messages %}
+    <div class="border border-neutral-300 bg-neutral-50 px-4 py-3 text-sm text-brand">{{ message }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <form method="post" action="{% url 'accounts:login' %}" class="mt-8 space-y-4">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ next }}">
+    {% if form.non_field_errors %}
+      <div class="border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">{% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}</div>
+    {% endif %}
+
+    {% for field in form %}
+    <div>
+      <label for="{{ field.id_for_label }}" class="block text-sm font-semibold text-brand">{{ field.label }}</label>
+      {{ field }}
+      {% for error in field.errors %}<p class="mt-1 text-sm text-red-700">{{ error }}</p>{% endfor %}
     </div>
-</div>
+    {% endfor %}
+
+    <button type="submit" class="w-full rounded bg-accent px-6 py-2 text-sm font-bold uppercase text-brand hover:opacity-90">Sign in</button>
+  </form>
+
+  <p class="mt-6 text-sm text-neutral-700">New here? <a href="{% url 'accounts:register' %}" class="font-semibold text-brand underline hover:text-accent">Create an account</a></p>
+</section>
 {% endblock %}

@@ -16,12 +16,15 @@ from django.core.exceptions import PermissionDenied
 from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_http_methods
 
 from accounts.models import AuditEvent
 from tutorials.models import Category, Tutorial, TutorialAccess, TutorialProgress
 
+from core.throttle import rate_limit
 from .forms import CategoryForm, TutorialForm
+from tutorials.providers import bunny_upload
 
 User = get_user_model()
 
@@ -46,6 +49,20 @@ def _audit(request, action, target_user=None, detail=""):
         actor=request.user, target_user=target_user, action=action,
         detail=detail[:255], ip_address=_client_ip(request),
     )
+
+
+def _back(request, fallback_name, **kwargs):
+    """Return to the page the action was submitted from (validated), else the fallback.
+
+    The same grant/revoke endpoints are used from the account page and from the
+    tutorial access page; `next` keeps the operator where they were working.
+    """
+    nxt = request.POST.get("next", "")
+    if nxt and url_has_allowed_host_and_scheme(
+        nxt, allowed_hosts={request.get_host()}, require_https=request.is_secure()
+    ):
+        return redirect(nxt)
+    return redirect(fallback_name, **kwargs)
 
 
 def _block_self(request, target_user):
@@ -171,7 +188,7 @@ def grant_access(request, pk, tutorial_pk):
     _audit(request, AuditEvent.Action.ACCESS_GRANTED, target_user=target_user,
            detail=f"tutorial={tutorial.slug}")
     messages.success(request, f"Granted {tutorial.title} to {target_user.username}.")
-    return redirect("dashboard:user_detail", pk=pk)
+    return _back(request, "dashboard:user_detail", pk=pk)
 
 
 @require_http_methods(["POST"])
@@ -184,7 +201,7 @@ def revoke_access(request, pk, tutorial_pk):
         _audit(request, AuditEvent.Action.ACCESS_REVOKED, target_user=target_user,
                detail=f"tutorial={tutorial.slug}")
         messages.success(request, f"Revoked {tutorial.title} from {target_user.username}.")
-    return redirect("dashboard:user_detail", pk=pk)
+    return _back(request, "dashboard:user_detail", pk=pk)
 
 
 # --- Tutorial CRUD ----------------------------------------------------------
@@ -200,6 +217,7 @@ def tutorial_list(request):
     return render(request, "dashboard/tutorial_list.html", {"tutorials": tutorials})
 
 
+@rate_limit("upload")
 @staff_required
 def tutorial_edit(request, pk=None):
     if pk:
@@ -209,7 +227,25 @@ def tutorial_edit(request, pk=None):
     if request.method == "POST":
         form = TutorialForm(request.POST, request.FILES, instance=tutorial)
         if form.is_valid():
-            saved = form.save()
+            saved = form.save(commit=False)
+            uploaded = form.cleaned_data.get("video_file")
+            if uploaded:
+                # Upload first, save second: a failed upload leaves the tutorial
+                # exactly as it was, with an explanation on the form.
+                try:
+                    guid = bunny_upload.upload_file(uploaded, title=saved.title)
+                except bunny_upload.UploadError as exc:
+                    form.add_error("video_file", f"{exc} (Choose the file again to retry.)")
+                    return render(request, "dashboard/tutorial_edit.html", {
+                        "form": form, "tutorial": tutorial,
+                    })
+                saved.video_provider = Tutorial.VideoProvider.BUNNY
+                saved.video_ref = guid
+                messages.success(
+                    request,
+                    f"Uploaded the video to Bunny Stream and attached it to “{saved.title}”.",
+                )
+            saved.save()
             _audit(
                 request,
                 AuditEvent.Action.TUTORIAL_UPDATED,
@@ -221,6 +257,32 @@ def tutorial_edit(request, pk=None):
         form = TutorialForm(instance=tutorial)
     return render(request, "dashboard/tutorial_edit.html", {
         "form": form, "tutorial": tutorial,
+    })
+
+
+@staff_required
+def tutorial_access(request, pk):
+    """Give existing accounts access to ONE tutorial, from the tutorial's side.
+
+    Mirrors the per-tutorial table on the account page: the account page answers
+    "what can this person watch", this page answers "who can watch this video".
+    Grants are prepared for drafts too, but only published + approved accounts
+    can actually play (tutorials/access.py is the only authority).
+    """
+    tutorial = get_object_or_404(Tutorial, pk=pk)
+    accounts = User.objects.order_by("username")
+    q = (request.GET.get("q") or "").strip()
+    if q:
+        accounts = accounts.filter(Q(username__icontains=q) | Q(email__icontains=q))
+    grants = set(
+        TutorialAccess.objects.filter(tutorial=tutorial).values_list("user_id", flat=True)
+    )
+    return render(request, "dashboard/tutorial_access.html", {
+        "tutorial": tutorial,
+        "accounts": accounts[:200],
+        "granted": grants,
+        "grant_count": len(grants),
+        "q": q,
     })
 
 
