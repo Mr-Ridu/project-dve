@@ -54,7 +54,7 @@ def load_index():
     """[(slug, title, text)] for every searchable page, loaded once per process."""
     entries = list(EXTRA_PAGES)
     for slug, page in PAGES.items():
-        entries.append((slug, page["title"], " ".join(page["paragraphs"])))
+        entries.append((slug, page["title"], " ".join(page["paragraphs"] + page.get("bullets", []))))
     return entries
 
 

@@ -50,6 +50,34 @@ PAGES = {
             'We also help suppliers and buyers understand e-GP requirements, evaluation criteria and post-award contract management. To request a session or ask about a current tender, contact our team.',
         ],
     },
+    'e-tender-management': {
+        'title': 'E-Tender Management',
+        'paragraphs': [
+            'E-Tender Management. A practical workspace for industrial suppliers and project teams managing public and private tenders.',
+            'Inputs, participants, tender records, bids and reports stay together, so the team can see what has been submitted, what is pending and where a bid needs attention.',
+            'For a demonstration or a walkthrough of the workspace, contact our team.',
+        ],
+        'bullets': [
+            'Inputs & reports',
+            'Add participants and maintain participant records',
+            'Create tenders and keep a tender record',
+            'Add tender bids and maintain bid records',
+            'Participants, tender and tender-bid reports',
+        ],
+    },
+    'learn-and-education': {
+        'title': 'Presentations',
+        'paragraphs': [
+            'Presentations. Our Learn & Education Series brings product demonstrations, application walkthroughs and technical briefings to customers and project teams.',
+            'Sessions can be arranged around a specific machine, a production line or a sector challenge. We can explain the technology and show it in action.',
+        ],
+        'bullets': [
+            'Learn & Education Series video',
+            'Product demonstrations',
+            'Application and process walkthroughs',
+            'Technical presentations for project teams',
+        ],
+    },
     'legal-notices': {
         'title': 'Legal Notices',
         'paragraphs': [

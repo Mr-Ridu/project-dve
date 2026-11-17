@@ -46,6 +46,8 @@
                 <li><a href="{% url 'tutorials:list' %}">Tutorial library</a></li>
                 <li><a href="{% url 'core:page-detail' 'daily-update' %}">Daily Update</a></li>
                 <li><a href="{% url 'core:page-detail' 'e-tender-school' %}">E-Tender School</a></li>
+                <li><a href="{% url 'core:page-detail' 'e-tender-management' %}">E-Tender Management</a></li>
+                <li><a href="{% url 'core:page-detail' 'learn-and-education' %}">Presentations</a></li>
                 <li class="nav-sep" role="separator"></li>
                 {% if user.is_authenticated %}
                   <li><span class="nav-user">{{ user.get_username }}</span></li>
@@ -123,6 +125,8 @@
           <li><a href="{% url 'tutorials:list' %}" class="block py-1 hover:text-accent">Tutorial library</a></li>
           <li><a href="{% url 'core:page-detail' 'daily-update' %}" class="block py-1 hover:text-accent">Daily Update</a></li>
           <li><a href="{% url 'core:page-detail' 'e-tender-school' %}" class="block py-1 hover:text-accent">E-Tender School</a></li>
+          <li><a href="{% url 'core:page-detail' 'e-tender-management' %}" class="block py-1 hover:text-accent">E-Tender Management</a></li>
+          <li><a href="{% url 'core:page-detail' 'learn-and-education' %}" class="block py-1 hover:text-accent">Presentations</a></li>
           {% if user.is_authenticated %}
             <li><span class="block py-1 text-neutral-600">{{ user.get_username }}</span></li>
             {% if user.is_staff %}<li><a href="{% url 'dashboard:overview' %}" class="block py-1 hover:text-accent">Staff dashboard</a></li>{% endif %}

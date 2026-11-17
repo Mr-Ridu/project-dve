@@ -27,7 +27,48 @@
   </div>
 </section>
 
-{# 2. What we do — dark four-card band (reference: coineer layout) #}
+{# 2. Community / Knowledge / Innovation — the people and know-how behind the equipment #}
+<section class="bg-white">
+  <div class="mx-auto max-w-[1400px] px-5 py-14 md:py-20">
+    <div class="grid gap-8 md:grid-cols-[0.9fr_1.1fr] md:items-end md:gap-16">
+      <div>
+        <p class="eyebrow">Community &middot; Knowledge &middot; Innovation</p>
+        <h2 class="mt-3 max-w-lg text-[30px] font-light leading-[1.15] text-brand md:text-[40px]">
+          The people and know-how behind the equipment
+        </h2>
+      </div>
+      <p class="max-w-2xl text-base leading-relaxed text-[#363940]">
+        Industrial equipment only performs when the people behind it understand the process.
+        We bring together engineering, installation and service experience around every project.
+      </p>
+    </div>
+
+    <div class="mt-10 grid gap-6 md:grid-cols-3">
+      <article class="border-t-2 border-plum pt-5">
+        <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-plum">01 &mdash; Community</p>
+        <h3 class="mt-3 text-[24px] font-light leading-tight text-brand">We connect experts to advance technology.</h3>
+        <p class="mt-3 text-sm leading-relaxed text-[#363940]">Process, mechanical and automation specialists work together around the equipment, the site and the production target.</p>
+      </article>
+      <article class="border-t-2 border-plum pt-5">
+        <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-plum">02 &mdash; Knowledge</p>
+        <h3 class="mt-3 text-[24px] font-light leading-tight text-brand">We know industrial technology and how to support it.</h3>
+        <p class="mt-3 text-sm leading-relaxed text-[#363940]">From installation through commissioning, our engineers stay close to the equipment and the team that runs it.</p>
+      </article>
+      <article class="border-t-2 border-plum pt-5">
+        <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-plum">03 &mdash; Innovation</p>
+        <h3 class="mt-3 text-[24px] font-light leading-tight text-brand">We support new possibilities in industrial operations.</h3>
+        <p class="mt-3 text-sm leading-relaxed text-[#363940]">Automation, controls and process improvements are selected to fit the plant you already run &mdash; not replace it for its own sake.</p>
+      </article>
+    </div>
+
+    <div class="mt-10 flex flex-col gap-5 border-t border-neutral-200 pt-6 md:flex-row md:items-center md:justify-between">
+      <p class="max-w-2xl text-sm leading-relaxed text-[#363940]">We can explain more about our technological approach and arrange a demonstration at any time.</p>
+      <a href="{% url 'core:contact' %}" class="btn-ref btn-ref-outline self-start md:self-auto">Request a demonstration</a>
+    </div>
+  </div>
+</section>
+
+{# 3. What we do — dark four-card band (reference: coineer layout) #}
 <section class="bg-[#12061b] text-white">
   <div class="mx-auto grid max-w-[1400px] gap-12 px-5 py-16 md:grid-cols-[0.92fr_1.08fr] md:items-center md:gap-20 md:py-24">
     <div>
@@ -75,7 +116,7 @@
       <div class="news-slide is-active" data-news-slide role="group" aria-roledescription="slide" aria-label="1 of 2" aria-hidden="false">
         <div class="flex flex-col justify-center p-8 md:p-12 lg:p-14">
           <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-plum">Tender support</p>
-          <h3 class="mt-4 text-[32px] font-light leading-[1.08] tracking-[-0.8px] text-brand md:text-[42px]">Tender With – Government Deferment</h3>
+          <h3 class="mt-4 text-[32px] font-light leading-[1.08] tracking-[-0.8px] text-brand md:text-[42px]">Government Tender – Deferred Payment</h3>
           <p class="mt-5 max-w-md text-[14px] leading-relaxed text-[#363940]">
             Guidance on documentation, eligibility and deferred-payment options for eligible industrial plant and machinery projects.
           </p>
@@ -85,7 +126,7 @@
           <img src="{% static 'images/products/plant2.jpg' %}" alt="Production line machinery inside an industrial plant" class="h-full w-full object-cover" loading="lazy">
           <div class="absolute inset-x-0 bottom-7 bg-plum/95 px-6 py-5 text-white">
             <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-white/75">Tender briefing</p>
-            <p class="mt-1 text-[22px] font-semibold leading-tight">Tender With – Gov. Deferment</p>
+            <p class="mt-1 text-[22px] font-semibold leading-tight">Government Tender – Deferred Payment</p>
           </div>
         </div>
       </div>
@@ -130,33 +171,38 @@
 
     <div class="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
       <a href="{% url 'core:products' %}#plant-machinery" class="group block">
-        <img src="{% static 'images/products/plant2.jpg' %}" alt="Production line machinery inside an industrial plant" class="h-56 w-full object-cover" loading="lazy">
+        <img src="{% static 'images/products/client-plant.webp' %}" alt="Industrial plant and machinery on site" class="h-56 w-full object-cover" loading="lazy">
         <p class="mt-4 text-[11px] font-bold uppercase tracking-[2px] text-plum">Sector 01</p>
         <h3 class="mt-1 text-[24px] font-light text-brand group-hover:text-plum">Industrial Plant &amp; Machinery</h3>
+        <p class="mt-2 text-[12px] font-semibold uppercase tracking-[0.12em] text-plum">Built for strength. Built for success.</p>
         <p class="mt-2 text-sm leading-relaxed text-[#363940]">Processing, handling and line equipment built around your throughput.</p>
       </a>
       <a href="{% url 'core:products' %}#energy-power" class="group block">
-        <img src="{% static 'images/products/energy.jpg' %}" alt="Generator rotor inside a power plant" class="h-56 w-full object-cover" loading="lazy">
+        <img src="{% static 'images/products/client-energy.webp' %}" alt="Energy and power sector" class="h-56 w-full object-cover" loading="lazy">
         <p class="mt-4 text-[11px] font-bold uppercase tracking-[2px] text-plum">Sector 02</p>
         <h3 class="mt-1 text-[24px] font-light text-brand group-hover:text-plum">Energy &amp; Power</h3>
+        <p class="mt-2 text-[12px] font-semibold uppercase tracking-[0.12em] text-plum">Small steps today, a greener tomorrow.</p>
         <p class="mt-2 text-sm leading-relaxed text-[#363940]">Generation, distribution and balance-of-plant equipment.</p>
       </a>
       <a href="{% url 'core:products' %}#robotic-automation" class="group block">
-        <img src="{% static 'images/products/robot.jpg' %}" alt="Robotic arm working on an automated production cell" class="h-56 w-full object-cover" loading="lazy">
+        <img src="{% static 'images/products/client-robotics.webp' %}" alt="Robotic arm and gear in an automated production cell" class="h-56 w-full object-cover" loading="lazy">
         <p class="mt-4 text-[11px] font-bold uppercase tracking-[2px] text-plum">Sector 03</p>
         <h3 class="mt-1 text-[24px] font-light text-brand group-hover:text-plum">Robotic &amp; Automation</h3>
+        <p class="mt-2 text-[12px] font-semibold uppercase tracking-[0.12em] text-plum">Automate the routine. Elevate the human.</p>
         <p class="mt-2 text-sm leading-relaxed text-[#363940]">Robotic cells and controls integrated with your existing plant.</p>
       </a>
       <a href="{% url 'core:products' %}#steel-metal" class="group block">
-        <img src="{% static 'images/products/steel.jpg' %}" alt="Molten steel being poured in a metal plant" class="h-56 w-full object-cover" loading="lazy">
+        <img src="{% static 'images/products/client-steel.webp' %}" alt="Steel coils and surface finishes" class="h-56 w-full object-cover" loading="lazy">
         <p class="mt-4 text-[11px] font-bold uppercase tracking-[2px] text-plum">Sector 04</p>
         <h3 class="mt-1 text-[24px] font-light text-brand group-hover:text-plum">Steel &amp; Metal</h3>
+        <p class="mt-2 text-[12px] font-semibold uppercase tracking-[0.12em] text-plum">Creating foundations, creating futures &mdash; precision in every detail.</p>
         <p class="mt-2 text-sm leading-relaxed text-[#363940]">Heavy-duty equipment for melting, rolling and finishing lines.</p>
       </a>
       <a href="{% url 'core:products' %}#pharma-biotech" class="group block">
-        <img src="{% static 'images/products/pharma.jpg' %}" alt="Ampoule filling line in a pharmaceutical plant" class="h-56 w-full object-cover" loading="lazy">
+        <img src="{% static 'images/products/client-pharma.webp' %}" alt="Laboratory instrument for pharmaceutical analysis" class="h-56 w-full object-cover" loading="lazy">
         <p class="mt-4 text-[11px] font-bold uppercase tracking-[2px] text-plum">Sector 05</p>
         <h3 class="mt-1 text-[24px] font-light text-brand group-hover:text-plum">Pharma &amp; Biotech</h3>
+        <p class="mt-2 text-[12px] font-semibold uppercase tracking-[0.12em] text-plum">Science in our hands, health in our mission.</p>
         <p class="mt-2 text-sm leading-relaxed text-[#363940]">Process equipment and cleanroom systems for regulated production.</p>
       </a>
       <div class="flex flex-col justify-center border border-neutral-200 p-8">
@@ -260,6 +306,10 @@
         <span class="mt-5 inline-block text-[12px] font-bold uppercase tracking-[2px] text-brand group-hover:text-plum">How we support you &rarr;</span>
       </a>
     </div>
+    <div class="mt-8 flex flex-wrap gap-x-6 gap-y-2 border-t border-neutral-200 pt-5 text-[11px] font-bold uppercase tracking-[2px] text-plum">
+      <a href="{% url 'core:page-detail' 'e-tender-management' %}" class="hover:text-brand">E-Tender Management &rarr;</a>
+      <a href="{% url 'core:page-detail' 'learn-and-education' %}" class="hover:text-brand">Presentations &rarr;</a>
+    </div>
   </div>
 </section>
 
@@ -268,7 +318,7 @@
   <div class="mx-auto flex max-w-[1400px] flex-col items-center gap-6 px-5 py-14 text-center md:py-16">
     <p class="eyebrow">Next step</p>
     <h2 class="max-w-2xl text-[24px] font-light leading-[1.3] text-brand md:text-[30px] md:leading-[36px]">
-      Tell us what you need to produce. We will recommend the right system and support package.
+      Find out more about how Techno Mate will work tirelessly for you.
     </h2>
     <a href="{% url 'core:contact' %}" class="btn-ref btn-ref-cyan">Contact Us</a>
   </div>

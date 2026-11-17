@@ -18,6 +18,16 @@
     {% empty %}
     <p class="text-neutral-700">Content for this page is being prepared. Please contact us if you need information about this topic.</p>
     {% endfor %}
+    {% if page.bullets %}
+    <ul class="mt-8 grid gap-3 text-neutral-700 sm:grid-cols-2">
+      {% for bullet in page.bullets %}
+      <li class="flex gap-3">
+        <span class="mt-1 text-plum" aria-hidden="true">✓</span>
+        <span>{{ bullet }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
   </div>
 
   <div class="mt-12 flex flex-wrap gap-3 border-t border-neutral-200 pt-8">

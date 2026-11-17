@@ -68,8 +68,8 @@
 .hero-home {
   background-color: #190321;
   background-image:
-    linear-gradient(90deg, rgba(12, 4, 28, 0.78) 0%, rgba(12, 4, 28, 0.5) 55%, rgba(12, 4, 28, 0.25) 100%),
-    url("../images/products/hero.jpg");
+    linear-gradient(90deg, rgba(12, 4, 28, 0.92) 0%, rgba(12, 4, 28, 0.8) 55%, rgba(12, 4, 28, 0.32) 100%),
+    url("../images/products/hero-client.webp");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
