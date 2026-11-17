@@ -65,6 +65,9 @@
               </ul>
             </li>
 
+            <li class="nav-item"><a href="{% url 'core:page-detail' 'our-technology' %}" class="nav-link">Our Technology</a></li>
+            <li class="nav-item"><a href="{% url 'core:page-detail' 'events-and-seminars' %}" class="nav-link">Events</a></li>
+            <li class="nav-item"><a href="{% url 'core:page-detail' 'for-customer' %}" class="nav-link">For Customer</a></li>
             <li class="nav-item"><a href="{% url 'core:contact' %}" class="nav-link">Contact</a></li>
           </ul>
 
@@ -89,7 +92,7 @@
     </div>
 
     {# --- Second navbar: the five sectors, with CTAs --- #}
-    <div class="second-bar text-white">
+    <div class="second-bar hidden text-white lg:block">
       <nav class="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-x-6 gap-y-3 px-5 py-5 min-[1400px]:px-0" aria-label="Sectors">
         <ul class="flex flex-wrap items-center text-[15px] font-bold">
           <li class="second-bar-item"><a href="{% url 'core:products' %}#plant-machinery">Industrial Plant &amp; Machinery</a></li>
@@ -119,6 +122,7 @@
         </ul>
       </li>
       <li><a href="{% url 'core:about' %}" class="block py-2 uppercase tracking-wide hover:text-accent">About</a></li>
+      <li><a href="{% url 'core:services' %}" class="block py-2 uppercase tracking-wide hover:text-accent">Service &amp; Support</a></li>
       <li>
         <p class="py-2 uppercase tracking-wide">Resources <span class="nav-plus" aria-hidden="true">+</span></p>
         <ul class="mb-2 ml-4 space-y-1 border-l border-neutral-200 pl-4 font-normal">
@@ -142,6 +146,9 @@
           {% endif %}
         </ul>
       </li>
+      <li><a href="{% url 'core:page-detail' 'our-technology' %}" class="block py-2 uppercase tracking-wide hover:text-accent">Our Technology</a></li>
+      <li><a href="{% url 'core:page-detail' 'events-and-seminars' %}" class="block py-2 uppercase tracking-wide hover:text-accent">Events</a></li>
+      <li><a href="{% url 'core:page-detail' 'for-customer' %}" class="block py-2 uppercase tracking-wide hover:text-accent">For Customer</a></li>
       <li><a href="{% url 'core:contact' %}" class="block py-2 uppercase tracking-wide hover:text-accent">Contact</a></li>
     </ul>
   </header>
@@ -181,6 +188,9 @@
             <li><a href="{% url 'core:about' %}" class="footer-link">About</a></li>
             <li><a href="{% url 'core:products' %}" class="footer-link">Products</a></li>
             <li><a href="{% url 'core:services' %}" class="footer-link">Service &amp; Support</a></li>
+            <li><a href="{% url 'core:page-detail' 'our-technology' %}" class="footer-link">Our Technology</a></li>
+            <li><a href="{% url 'core:page-detail' 'events-and-seminars' %}" class="footer-link">Events</a></li>
+            <li><a href="{% url 'core:page-detail' 'for-customer' %}" class="footer-link">For Customer</a></li>
             <li><a href="{% url 'core:contact' %}" class="footer-link">Contact Us</a></li>
           </ul>
         </div>

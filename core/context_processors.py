@@ -25,13 +25,11 @@ COMPANY = {
     "phones": ["02-223352155", "02-223358554"],
     "email": "tmt@chemietradebd.net",
     "youtube_url": "https://www.youtube.com/@TechnoMateTechnologies",
-    # Social profiles (docs/Website Basic Information.docx). Only YouTube is
-    # published so far; the others stay "#" until the accounts exist.
+    # Social profiles (docs/Website Basic Information.docx). The document lists
+    # YouTube only, so no placeholder links are published for accounts that do
+    # not exist yet.
     "social": [
-        {"name": "Facebook", "icon": "facebook", "url": "#", "label": "Facebook"},
         {"name": "YouTube", "icon": "youtube", "url": "https://www.youtube.com/@TechnoMateTechnologies", "label": "YouTube"},
-        {"name": "WhatsApp", "icon": "whatsapp", "url": "#", "label": "WhatsApp"},
-        {"name": "X", "icon": "x", "url": "#", "label": "X"},
     ],
 }
 
