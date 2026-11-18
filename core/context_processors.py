@@ -34,5 +34,16 @@ COMPANY = {
 }
 
 
+def _css_version():
+    """mtime of the compiled stylesheet, used to bust browser caches."""
+    try:
+        from django.conf import settings
+
+        path = settings.BASE_DIR / "static" / "css" / "app.css"
+        return int(path.stat().st_mtime)
+    except Exception:
+        return ""
+
+
 def company(request):
-    return {"company": COMPANY}
+    return {"company": COMPANY, "asset_version": _css_version()}

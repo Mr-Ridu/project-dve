@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}{{ company.name }}{% endblock %}</title>
   <meta name="description" content="{{ company.about }}">
-  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+  <link rel="stylesheet" href="{% static 'css/app.css' %}?v={{ asset_version }}">
   <link rel="stylesheet" href="{% static 'css/site-a11y.css' %}">
   {% block extra_head %}{% endblock %}
 </head>
@@ -217,7 +217,7 @@
             <label for="newsletter-email" class="sr-only">Email address</label>
             <input id="newsletter-email" type="email" name="email" required placeholder="NEWSLETTER SIGN UP" class="w-full border-0 bg-transparent px-1 pt-1 text-[13px] uppercase tracking-[0.08em] text-neutral-600 placeholder:text-neutral-500">
             <button type="submit" class="mt-2 inline-flex h-9 w-9 items-center justify-center rounded-sm bg-plum text-white hover:opacity-90" aria-label="Sign up">
-              <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="3"><path d="M9 5l7 7-7 7"/></svg>
+              <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
             </button>
           </form>
         </div>
@@ -235,8 +235,8 @@
     </div>
   </footer>
 
-  <a href="#" id="back-to-top" class="fixed bottom-10 right-0 hidden h-9 w-12 items-center justify-center bg-plum text-white hover:opacity-90" aria-label="Back to top">
-    <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 15l7-7 7 7"/></svg>
+  <a href="#" id="back-to-top" class="fixed bottom-10 right-0 hidden h-9 w-12 flex items-center justify-center bg-plum text-white hover:opacity-90" aria-label="Back to top">
+    <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg>
   </a>
 
   <script src="{% static 'js/app.js' %}" defer></script>

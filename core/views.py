@@ -17,15 +17,92 @@ from .throttle import rate_limit
 
 # --- Core pages -------------------------------------------------------------
 def home(request):
-    return render(request, "core/home.html")
+    return render(request, "core/home.html", {"sectors": PRODUCT_SECTORS})
 
 
 def about(request):
     return render(request, "core/about.html")
 
 
+# Product portfolio — five sectors, rendered as alternating image/text rows
+# on the products page (same layout as the reference site).
+PRODUCT_SECTORS = [
+    {
+        "slug": "plant-machinery",
+        "name": "Industrial Plant & Machinery",
+        "tagline": "Built for strength. Built for success.",
+        "short": "Processing, handling and line equipment built around your throughput.",
+        "image": "images/products/client-plant.webp",
+        "alt": "Industrial plant and machinery on site",
+        "description": (
+            "Industrial plant and machinery for production facilities, from single machines "
+            "to complete lines, with after-sales service and technical expertise. We work "
+            "around your layout, utilities and production targets to keep the line running."
+        ),
+        "scope": ["Single machines", "Complete lines", "Installation", "After-sales service"],
+    },
+    {
+        "slug": "energy-power",
+        "name": "Energy & Power",
+        "tagline": "Small steps today, a green tomorrow.",
+        "short": "Generation, distribution and balance-of-plant equipment.",
+        "image": "images/products/client-energy.webp",
+        "alt": "Energy and power sector",
+        "description": (
+            "Systems and equipment for the energy and power sector, backed by maintenance and "
+            "spares supply. Our team supports generation and plant equipment with planned "
+            "maintenance, breakdown response and genuine parts."
+        ),
+        "scope": ["Generation equipment", "Maintenance", "Spares supply", "Technical support"],
+    },
+    {
+        "slug": "robotic-automation",
+        "name": "Robotic & Automation",
+        "tagline": "Automate the routine. Elevate the human.",
+        "short": "Robotic cells and controls integrated with your existing plant.",
+        "image": "images/products/client-robotics.webp",
+        "alt": "Robotic arm and gear in an automated production cell",
+        "description": (
+            "Robotics and automation technology for modern production lines, integrated with "
+            "your existing plant. We specify, install and commission automation cells that fit "
+            "your process and your people."
+        ),
+        "scope": ["Robotic cells", "Line integration", "Controls & safety", "Commissioning"],
+    },
+    {
+        "slug": "steel-metal",
+        "name": "Steel & Metal",
+        "tagline": "Creating foundations, creating futures \u2014 precision in every detail.",
+        "short": "Heavy-duty equipment for melting, rolling and finishing lines.",
+        "image": "images/products/client-steel.webp",
+        "alt": "Steel coils and surface finishes",
+        "description": (
+            "Solutions for steel and metal processing operations, supplied and supported "
+            "locally. From handling and processing equipment to line upgrades, we help keep "
+            "heavy-duty operations productive."
+        ),
+        "scope": ["Processing equipment", "Handling systems", "Line upgrades", "Local support"],
+    },
+    {
+        "slug": "pharma-biotech",
+        "name": "Pharma & Biotech",
+        "tagline": "Science in our hands, health in our mission.",
+        "short": "Process equipment and cleanroom systems for regulated production.",
+        "image": "images/products/client-pharma.webp",
+        "alt": "Laboratory instrument for pharmaceutical analysis",
+        "description": (
+            "Process equipment and systems for pharmaceutical and biotechnology production, "
+            "supplied with installation, validation support and spare parts. We help specify "
+            "equipment that fits your process, cleanroom class and qualification requirements "
+            "\u2014 then support it through its working life."
+        ),
+        "scope": ["Process equipment", "Cleanroom systems", "Validation support", "Spares & service"],
+    },
+]
+
+
 def products(request):
-    return render(request, "core/products.html")
+    return render(request, "core/products.html", {"sectors": PRODUCT_SECTORS})
 
 
 def services(request):

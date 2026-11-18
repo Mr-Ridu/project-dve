@@ -151,130 +151,26 @@
     </div>
   </div>
 
-  <div class="mx-auto mt-14 max-w-[1400px]">
-    <article id="plant-machinery" class="scroll-mt-48 border-t border-neutral-200">
+  <div class="mx-auto mt-12 max-w-[1400px] md:mt-16">
+    {% for sector in sectors %}
+    <article id="{{ sector.slug }}" class="scroll-mt-48">
       <div class="grid md:grid-cols-2">
-        <div class="md:order-2">
-          <img src="{% static 'images/products/client-plant.webp' %}" alt="Industrial plant and machinery on site" width="800" height="800" class="h-[260px] w-full object-cover md:h-full md:min-h-[420px]" loading="lazy">
+        <div class="{% if forloop.counter|divisibleby:2 %}md:order-1{% else %}md:order-2{% endif %}">
+          <img src="{% static sector.image %}" alt="{{ sector.alt }}" class="h-[240px] w-full object-cover md:h-[420px]" loading="lazy">
         </div>
-        <div class="flex flex-col justify-center px-5 py-10 md:order-1 md:px-14 md:py-14">
-          <p class="text-[12px] font-bold uppercase tracking-[2px] text-plum">Sector 01</p>
-          <h2 class="mt-2 text-[28px] font-light text-brand md:text-[34px]">Industrial Plant &amp; Machinery</h2>
-          <p class="mt-2 text-[13px] font-semibold uppercase tracking-[0.12em] text-plum">Built for strength. Built for success.</p>
-          <p class="mt-4 max-w-xl text-[15px] leading-relaxed text-[#363940]">
-            Industrial plant and machinery for production facilities, from single machines to complete
-            lines, with after-sales service and technical expertise. We work around your layout, utilities
-            and production targets to keep the line running.
-          </p>
-          <ul class="mt-6 flex flex-wrap gap-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-neutral-600">
-            <li class="border border-neutral-300 px-3 py-1.5">Single machines</li>
-            <li class="border border-neutral-300 px-3 py-1.5">Complete lines</li>
-            <li class="border border-neutral-300 px-3 py-1.5">Installation</li>
-            <li class="border border-neutral-300 px-3 py-1.5">After-sales service</li>
-          </ul>
-          <a href="{% url 'core:contact' %}" class="btn-ref btn-ref-outline mt-8 self-start">Learn more</a>
+        <div class="flex flex-col justify-center px-5 py-10 md:px-12 md:py-14 {% if forloop.counter|divisibleby:2 %}md:order-2{% else %}md:order-1{% endif %}">
+          <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#6d6d6d]">{{ sector.tagline }}</p>
+          <h2 class="mt-3 text-[26px] font-light leading-[1.25] text-brand md:text-[32px]">{{ sector.name }}</h2>
+          <p class="mt-4 max-w-xl text-[14px] leading-relaxed text-[#363940]">{{ sector.description }}</p>
+          <p class="mt-4 max-w-xl text-[11px] font-semibold uppercase tracking-[0.12em] text-neutral-500">{% for item in sector.scope %}{{ item }}{% if not forloop.last %} &middot; {% endif %}{% endfor %}</p>
+          <div class="mt-7 flex flex-wrap gap-3">
+            <a href="{% url 'core:contact' %}" class="btn-ref btn-ref-outline">Learn more</a>
+            <a href="{% url 'core:contact' %}" class="btn-ref btn-ref-plum">Request info</a>
+          </div>
         </div>
       </div>
     </article>
-
-    <article id="energy-power" class="scroll-mt-48 border-t border-neutral-200">
-      <div class="grid md:grid-cols-2">
-        <div class="md:order-1">
-          <img src="{% static 'images/products/client-energy.webp' %}" alt="Energy and power sector" width="1024" height="683" class="h-[260px] w-full object-cover md:h-full md:min-h-[420px]" loading="lazy">
-        </div>
-        <div class="flex flex-col justify-center px-5 py-10 md:order-2 md:px-14 md:py-14">
-          <p class="text-[12px] font-bold uppercase tracking-[2px] text-plum">Sector 02</p>
-          <h2 class="mt-2 text-[28px] font-light text-brand md:text-[34px]">Energy &amp; Power</h2>
-          <p class="mt-2 text-[13px] font-semibold uppercase tracking-[0.12em] text-plum">Small steps today, a green tomorrow.</p>
-          <p class="mt-4 max-w-xl text-[15px] leading-relaxed text-[#363940]">
-            Systems and equipment for the energy and power sector, backed by maintenance and spares supply.
-            Our team supports generation and plant equipment with planned maintenance, breakdown response
-            and genuine parts.
-          </p>
-          <ul class="mt-6 flex flex-wrap gap-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-neutral-600">
-            <li class="border border-neutral-300 px-3 py-1.5">Generation equipment</li>
-            <li class="border border-neutral-300 px-3 py-1.5">Maintenance</li>
-            <li class="border border-neutral-300 px-3 py-1.5">Spares supply</li>
-            <li class="border border-neutral-300 px-3 py-1.5">Technical support</li>
-          </ul>
-          <a href="{% url 'core:contact' %}" class="btn-ref btn-ref-outline mt-8 self-start">Learn more</a>
-        </div>
-      </div>
-    </article>
-
-    <article id="robotic-automation" class="scroll-mt-48 border-t border-neutral-200">
-      <div class="grid md:grid-cols-2">
-        <div class="md:order-1">
-          <img src="{% static 'images/products/client-robotics.webp' %}" alt="Robotic arm and gear in an automated production cell" width="611" height="383" class="h-[260px] w-full object-cover md:h-full md:min-h-[420px]" loading="lazy">
-        </div>
-        <div class="flex flex-col justify-center px-5 py-10 md:order-2 md:px-14 md:py-14">
-          <p class="text-[12px] font-bold uppercase tracking-[2px] text-plum">Sector 03</p>
-          <h2 class="mt-2 text-[28px] font-light text-brand md:text-[34px]">Robotic &amp; Automation</h2>
-          <p class="mt-2 text-[13px] font-semibold uppercase tracking-[0.12em] text-plum">Automate the routine. Elevate the human.</p>
-          <p class="mt-4 max-w-xl text-[15px] leading-relaxed text-[#363940]">
-            Robotics and automation technology for modern production lines, integrated with your existing
-            plant. We specify, install and commission automation cells that fit your process and your people.
-          </p>
-          <ul class="mt-6 flex flex-wrap gap-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-neutral-600">
-            <li class="border border-neutral-300 px-3 py-1.5">Robotic cells</li>
-            <li class="border border-neutral-300 px-3 py-1.5">Line integration</li>
-            <li class="border border-neutral-300 px-3 py-1.5">Controls &amp; safety</li>
-            <li class="border border-neutral-300 px-3 py-1.5">Commissioning</li>
-          </ul>
-          <a href="{% url 'core:contact' %}" class="btn-ref btn-ref-outline mt-8 self-start">Learn more</a>
-        </div>
-      </div>
-    </article>
-
-    <article id="steel-metal" class="scroll-mt-48 border-t border-neutral-200">
-      <div class="grid md:grid-cols-2">
-        <div class="md:order-2">
-          <img src="{% static 'images/products/client-steel.webp' %}" alt="Steel coils and surface finishes" width="1600" height="883" class="h-[260px] w-full object-cover md:h-full md:min-h-[420px]" loading="lazy">
-        </div>
-        <div class="flex flex-col justify-center px-5 py-10 md:order-1 md:px-14 md:py-14">
-          <p class="text-[12px] font-bold uppercase tracking-[2px] text-plum">Sector 04</p>
-          <h2 class="mt-2 text-[28px] font-light text-brand md:text-[34px]">Steel &amp; Metal</h2>
-          <p class="mt-2 text-[13px] font-semibold uppercase tracking-[0.12em] text-plum">Creating foundations, creating futures &mdash; precision in every detail.</p>
-          <p class="mt-4 max-w-xl text-[15px] leading-relaxed text-[#363940]">
-            Solutions for steel and metal processing operations, supplied and supported locally. From
-            handling and processing equipment to line upgrades, we help keep heavy-duty operations
-            productive.
-          </p>
-          <ul class="mt-6 flex flex-wrap gap-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-neutral-600">
-            <li class="border border-neutral-300 px-3 py-1.5">Processing equipment</li>
-            <li class="border border-neutral-300 px-3 py-1.5">Handling systems</li>
-            <li class="border border-neutral-300 px-3 py-1.5">Line upgrades</li>
-            <li class="border border-neutral-300 px-3 py-1.5">Local support</li>
-          </ul>
-          <a href="{% url 'core:contact' %}" class="btn-ref btn-ref-outline mt-8 self-start">Learn more</a>
-        </div>
-      </div>
-    </article>
-
-    <article id="pharma-biotech" class="scroll-mt-48 border-y border-neutral-200">
-      <div class="grid md:grid-cols-2">
-        <div class="md:order-1">
-          <img src="{% static 'images/products/client-pharma.webp' %}" alt="Laboratory instrument for pharmaceutical analysis" width="1600" height="1067" class="h-[260px] w-full object-cover md:h-full md:min-h-[420px]" loading="lazy">
-        </div>
-        <div class="flex flex-col justify-center px-5 py-10 md:order-2 md:px-14 md:py-14">
-          <p class="text-[12px] font-bold uppercase tracking-[2px] text-plum">Sector 05</p>
-          <h2 class="mt-2 text-[28px] font-light text-brand md:text-[34px]">Pharma &amp; Biotech</h2>
-          <p class="mt-2 text-[13px] font-semibold uppercase tracking-[0.12em] text-plum">Science in our hands, health in our mission.</p>
-          <p class="mt-4 max-w-xl text-[15px] leading-relaxed text-[#363940]">
-            Process equipment and systems for pharmaceutical and biotechnology production, supplied with
-            installation, validation support and spare parts. We help specify equipment that fits your
-            process, cleanroom class and qualification requirements — then support it through its working life.
-          </p>
-          <ul class="mt-6 flex flex-wrap gap-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-neutral-600">
-            <li class="border border-neutral-300 px-3 py-1.5">Process equipment</li>
-            <li class="border border-neutral-300 px-3 py-1.5">Cleanroom systems</li>
-            <li class="border border-neutral-300 px-3 py-1.5">Validation support</li>
-            <li class="border border-neutral-300 px-3 py-1.5">Spares &amp; service</li>
-          </ul>
-          <a href="{% url 'core:contact' %}" class="btn-ref btn-ref-outline mt-8 self-start">Learn more</a>
-        </div>
-      </div>
-    </article>
+    {% endfor %}
   </div>
 </section>
 
