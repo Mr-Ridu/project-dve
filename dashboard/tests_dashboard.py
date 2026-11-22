@@ -59,6 +59,7 @@ class Gate(DashboardBase):
             ("get", reverse("dashboard:tutorial_create")),
             ("get", reverse("dashboard:tutorial_access", args=[self.tutorial.pk])),
             ("post", reverse("dashboard:tutorial_delete", args=[self.tutorial.pk])),
+            ("get", reverse("dashboard:subscriber_list")),
             ("get", reverse("dashboard:category_list")),
             ("post", reverse("dashboard:category_delete", args=[self.category.pk])),
         ]
@@ -88,6 +89,7 @@ class Gate(DashboardBase):
     def test_staff_200_on_read_pages(self):
         for url in [reverse("dashboard:overview"), reverse("dashboard:user_list"),
                     reverse("dashboard:tutorial_list"), reverse("dashboard:category_list"),
+                    reverse("dashboard:subscriber_list"),
                     reverse("dashboard:user_detail", args=[self.pending.pk]),
                     reverse("dashboard:tutorial_create"),
                     reverse("dashboard:tutorial_access", args=[self.tutorial.pk])]:
@@ -397,3 +399,25 @@ class ProgressSummaries(DashboardBase):
             reverse("dashboard:user_detail", args=[self.plain.pk])
         )
         self.assertContains(response, "40%")
+
+
+class SubscriberList(DashboardBase):
+    """Newsletter sign-ups collected by core.views.newsletter_subscribe show up for staff."""
+
+    def test_staff_sees_signups_and_can_search(self):
+        from core.models import NewsletterSubscriber
+
+        NewsletterSubscriber.objects.create(
+            first_name="Nadia", last_name="Akter",
+            email="nadia@example.com", interest="Steel & Metal",
+        )
+        url = reverse("dashboard:subscriber_list")
+        response = self.signed_in_staff.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "nadia@example.com")
+        self.assertContains(response, "Steel &amp; Metal")
+
+        found = self.signed_in_staff.get(url, {"q": "nadia"})
+        self.assertContains(found, "nadia@example.com")
+        missing = self.signed_in_staff.get(url, {"q": "nobody-here"})
+        self.assertNotContains(missing, "nadia@example.com")

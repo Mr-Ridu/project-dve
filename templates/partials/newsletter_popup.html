@@ -1,67 +1,89 @@
 {% load static %}{# Newsletter pop-up: matches the reference site's "Get Our Latest News" dialog, with our five product sectors as the areas of interest. #}
+
+{# Reusable isometric cube used by the decorative lattices on both sides #}
+<svg class="hidden" aria-hidden="true" focusable="false">
+  <defs>
+    <g id="nl-cube" fill="none">
+      <path d="M30 0l30 18v36L30 72 0 54V18z"/>
+      <path d="M30 0v36M30 36 0 18M30 36l30-18"/>
+    </g>
+  </defs>
+</svg>
+
 <div id="newsletter-popup" class="nl-popup hidden" role="dialog" aria-modal="true" aria-labelledby="newsletter-popup-title">
   <div class="nl-popup-backdrop" data-newsletter-close></div>
 
   <div class="nl-popup-card">
-    {# Decorative isometric cubes, like the reference artwork #}
-    <svg class="pointer-events-none absolute -left-2 -top-2 hidden h-32 w-32 text-fuchsia-200/70 sm:block" viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="1" aria-hidden="true">
-      <path d="M42 0l30 17v34L42 68 12 51V17z"/><path d="M42 0v34M12 17l30 17 30-17"/>
-      <path d="M42 34l30 17v34L42 102 12 85V51z"/><path d="M42 68L12 51"/>
+    {# Hexagonal cube lattice, left edge (top half), like the reference artwork #}
+    <svg class="pointer-events-none absolute left-0 top-0 hidden h-[320px] w-[128px] text-fuchsia-200/80 sm:block" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true" focusable="false">
+      <use href="#nl-cube" x="0" y="0"/>
+      <use href="#nl-cube" x="64" y="34"/>
+      <use href="#nl-cube" x="0" y="68"/>
+      <use href="#nl-cube" x="64" y="102"/>
+      <use href="#nl-cube" x="0" y="136"/>
+      <use href="#nl-cube" x="64" y="170"/>
+      <use href="#nl-cube" x="0" y="204"/>
+      <use href="#nl-cube" x="64" y="238"/>
     </svg>
-    <svg class="pointer-events-none absolute -left-4 top-1/2 hidden h-24 w-24 -translate-y-1/2 text-lime-300/60 sm:block" viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="1" aria-hidden="true">
-      <path d="M42 0l30 17v34L42 68 12 51V17z"/><path d="M42 0v34M12 17l30 17 30-17"/>
+
+    {# Hexagonal cube lattice, right edge (bottom corner), like the reference artwork #}
+    <svg class="pointer-events-none absolute bottom-0 right-0 hidden h-[160px] w-[128px] text-lime-300/80 sm:block" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true" focusable="false">
+      <use href="#nl-cube" x="0" y="0"/>
+      <use href="#nl-cube" x="64" y="34"/>
+      <use href="#nl-cube" x="0" y="68"/>
+      <use href="#nl-cube" x="64" y="102"/>
+      <use href="#nl-cube" x="0" y="136"/>
     </svg>
-    <svg class="pointer-events-none absolute -bottom-3 -right-2 hidden h-32 w-32 text-lime-300/60 sm:block" viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="1" aria-hidden="true">
-      <path d="M78 52l30 17v34L78 120 48 103V69z"/><path d="M78 52v34M48 69l30 17 30-17"/>
-    </svg>
 
-    <button type="button" class="nl-popup-close" data-newsletter-close aria-label="Close newsletter sign-up">
-      <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg>
-    </button>
+    <div class="relative z-10">
+      <button type="button" class="nl-popup-close" data-newsletter-close aria-label="Close newsletter sign-up">
+        <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg>
+      </button>
 
-    <img src="{% static company.logo_static_path %}" alt="{{ company.name }} logo" class="mx-auto h-14 w-14 rounded-full">
+      <img src="{% static company.logo_static_path %}" alt="{{ company.name }} logo" class="mx-auto h-14 w-14 rounded-full">
 
-    <h2 id="newsletter-popup-title" class="nl-popup-title">Get Our Latest News</h2>
+      <h2 id="newsletter-popup-title" class="nl-popup-title">Get Our Latest News</h2>
 
-    <form method="post" action="{% url 'core:form-placeholder' %}" class="nl-popup-form">
-      {% csrf_token %}
-      <input type="hidden" name="form" value="newsletter">
+      <form method="post" action="{% url 'core:newsletter-subscribe' %}" class="nl-popup-form">
+        {% csrf_token %}
+        <input type="hidden" name="form" value="newsletter">
 
-      <div class="grid gap-3 sm:grid-cols-2">
+        <div class="grid gap-3 sm:grid-cols-2">
+          <div>
+            <label for="nl-first-name" class="sr-only">First name</label>
+            <input id="nl-first-name" type="text" name="first_name" required placeholder="FIRST NAME" autocomplete="given-name" class="nl-input">
+          </div>
+          <div>
+            <label for="nl-last-name" class="sr-only">Last name</label>
+            <input id="nl-last-name" type="text" name="last_name" required placeholder="LAST NAME" autocomplete="family-name" class="nl-input">
+          </div>
+        </div>
+
         <div>
-          <label for="nl-first-name" class="sr-only">First name</label>
-          <input id="nl-first-name" type="text" name="first_name" required placeholder="FIRST NAME" autocomplete="given-name" class="nl-input">
+          <label for="nl-email" class="sr-only">Email</label>
+          <input id="nl-email" type="email" name="email" required placeholder="EMAIL" autocomplete="email" class="nl-input">
         </div>
-        <div>
-          <label for="nl-last-name" class="sr-only">Last name</label>
-          <input id="nl-last-name" type="text" name="last_name" required placeholder="LAST NAME" autocomplete="family-name" class="nl-input">
+
+        <fieldset class="mt-2">
+          <legend class="text-[13px] font-semibold text-brand">Areas of Interest <span class="text-plum" aria-hidden="true">*</span></legend>
+          <div class="mt-3 flex flex-wrap gap-x-6 gap-y-2.5">
+            <label class="nl-interest"><input type="radio" name="interest" value="Industrial Plant &amp; Machinery" required class="nl-radio"><span>Industrial Plant &amp; Machinery</span></label>
+            <label class="nl-interest"><input type="radio" name="interest" value="Energy &amp; Power" class="nl-radio"><span>Energy &amp; Power</span></label>
+            <label class="nl-interest"><input type="radio" name="interest" value="Robotic &amp; Automation" class="nl-radio"><span>Robotic &amp; Automation</span></label>
+            <label class="nl-interest"><input type="radio" name="interest" value="Steel &amp; Metal" class="nl-radio"><span>Steel &amp; Metal</span></label>
+            <label class="nl-interest"><input type="radio" name="interest" value="Pharma &amp; Biotech" class="nl-radio"><span>Pharma &amp; Biotech</span></label>
+          </div>
+        </fieldset>
+
+        <label class="mt-4 flex cursor-pointer items-start gap-3 text-[13px] leading-snug text-brand sm:pr-24">
+          <input type="checkbox" name="consent" required class="mt-[2px] h-[18px] w-[18px] shrink-0 cursor-pointer accent-plum">
+          <span>I have read and understood the <a href="/privacy-policy/" class="underline underline-offset-2 hover:text-plum">privacy policy</a> and consent to be contacted<span class="text-plum" aria-hidden="true">*</span></span>
+        </label>
+
+        <div class="mt-5 text-center">
+          <button type="submit" class="btn-ref btn-ref-plum min-w-[260px] justify-center">Submit</button>
         </div>
-      </div>
-
-      <div>
-        <label for="nl-email" class="sr-only">Email</label>
-        <input id="nl-email" type="email" name="email" required placeholder="EMAIL" autocomplete="email" class="nl-input">
-      </div>
-
-      <fieldset class="mt-2">
-        <legend class="text-[13px] font-semibold text-brand">Areas of Interest <span class="text-plum" aria-hidden="true">*</span></legend>
-        <div class="mt-3 flex flex-wrap gap-x-6 gap-y-2.5">
-          <label class="nl-interest"><input type="radio" name="interest" value="Industrial Plant &amp; Machinery" required class="nl-radio"><span>Industrial Plant &amp; Machinery</span></label>
-          <label class="nl-interest"><input type="radio" name="interest" value="Energy &amp; Power" class="nl-radio"><span>Energy &amp; Power</span></label>
-          <label class="nl-interest"><input type="radio" name="interest" value="Robotic &amp; Automation" class="nl-radio"><span>Robotic &amp; Automation</span></label>
-          <label class="nl-interest"><input type="radio" name="interest" value="Steel &amp; Metal" class="nl-radio"><span>Steel &amp; Metal</span></label>
-          <label class="nl-interest"><input type="radio" name="interest" value="Pharma &amp; Biotech" class="nl-radio"><span>Pharma &amp; Biotech</span></label>
-        </div>
-      </fieldset>
-
-      <label class="mt-4 flex cursor-pointer items-start gap-3 text-[13px] leading-snug text-brand">
-        <input type="checkbox" name="consent" required class="mt-[2px] h-[18px] w-[18px] shrink-0 cursor-pointer accent-plum">
-        <span>I have read and understood the <a href="/privacy-policy/" class="underline underline-offset-2 hover:text-plum">privacy policy</a> and consent to be contacted<span class="text-plum" aria-hidden="true">*</span></span>
-      </label>
-
-      <div class="mt-5 text-center">
-        <button type="submit" class="btn-ref btn-ref-plum min-w-[260px] justify-center">Submit</button>
-      </div>
-    </form>
+      </form>
+    </div>
   </div>
 </div>

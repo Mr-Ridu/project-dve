@@ -11,6 +11,8 @@ from django.contrib.staticfiles import finders
 from django.test import Client, TestCase
 from django.urls import reverse
 
+from core.models import NewsletterSubscriber
+
 # Pages the industrial site keeps live.
 LIVE_SLUGS = [
     "about", "accessibility-statement", "careers", "contact-us", "cookie-policy",
@@ -169,9 +171,58 @@ class SanitizationTests(TestCase):
             html = self.client.get(url_for(slug)).content.decode("utf-8", "replace")
             self.assertIsNone(ext.search(html), f"{slug}: external form action")
 
-    def test_forms_target_local_stub(self):
+    def test_newsletter_form_targets_its_own_endpoint(self):
         html = self.client.get("/").content.decode("utf-8", "replace")
-        self.assertIn('action="/forms/placeholder/"', html)
+        self.assertIn('action="/newsletter/subscribe/"', html)
+
+
+class NewsletterSignupTests(TestCase):
+    """The pop-up now stores real subscribers instead of only saying thanks."""
+
+    VALID = {
+        "first_name": "Riyad",
+        "last_name": "Hasan",
+        "email": "Riyad@Example.com",
+        "interest": "Energy & Power",
+        "consent": "on",
+    }
+
+    def test_valid_signup_is_saved(self):
+        response = self.client.post(reverse("core:newsletter-subscribe"), self.VALID)
+        self.assertEqual(response.status_code, 200)
+        subscriber = NewsletterSubscriber.objects.get()
+        self.assertEqual(subscriber.email, "riyad@example.com")
+        self.assertEqual(subscriber.full_name, "Riyad Hasan")
+        self.assertEqual(subscriber.interest, "Energy & Power")
+        self.assertTrue(subscriber.consent)
+
+    def test_repeat_email_updates_instead_of_duplicating(self):
+        url = reverse("core:newsletter-subscribe")
+        self.client.post(url, self.VALID)
+        updated = dict(self.VALID, first_name="Ridwan", interest="Steel & Metal")
+        self.client.post(url, updated)
+        self.assertEqual(NewsletterSubscriber.objects.count(), 1)
+        subscriber = NewsletterSubscriber.objects.get()
+        self.assertEqual(subscriber.first_name, "Ridwan")
+        self.assertEqual(subscriber.interest, "Steel & Metal")
+
+    def test_consent_and_email_are_required_server_side(self):
+        url = reverse("core:newsletter-subscribe")
+        no_consent = dict(self.VALID)
+        no_consent.pop("consent")
+        self.assertEqual(self.client.post(url, no_consent).status_code, 400)
+        bad_email = dict(self.VALID, email="not-an-email")
+        self.assertEqual(self.client.post(url, bad_email).status_code, 400)
+        self.assertEqual(NewsletterSubscriber.objects.count(), 0)
+
+    def test_get_is_not_allowed(self):
+        self.assertEqual(self.client.get(reverse("core:newsletter-subscribe")).status_code, 405)
+
+    def test_post_without_csrf_token_is_rejected(self):
+        c = Client(enforce_csrf_checks=True)
+        r = c.post(reverse("core:newsletter-subscribe"), self.VALID)
+        self.assertEqual(r.status_code, 403)
+        self.assertEqual(NewsletterSubscriber.objects.count(), 0)
 
 
 class FormCsrfTests(TestCase):

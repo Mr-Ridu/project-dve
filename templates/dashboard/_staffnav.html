@@ -4,6 +4,7 @@
   <a href="{% url 'dashboard:overview' %}" class="{% if here == 'overview' %}border-b-2 border-brand text-brand{% else %}text-neutral-500 hover:text-brand{% endif %} pb-3">Overview</a>
   <a href="{% url 'dashboard:user_list' %}" class="{% if here == 'user_list' or here == 'user_detail' %}border-b-2 border-brand text-brand{% else %}text-neutral-500 hover:text-brand{% endif %} pb-3">Users</a>
   <a href="{% url 'dashboard:tutorial_list' %}" class="{% if here == 'tutorial_list' or here == 'tutorial_create' or here == 'tutorial_edit' or here == 'tutorial_access' %}border-b-2 border-brand text-brand{% else %}text-neutral-500 hover:text-brand{% endif %} pb-3">Tutorials</a>
+  <a href="{% url 'dashboard:subscriber_list' %}" class="{% if here == 'subscriber_list' %}border-b-2 border-brand text-brand{% else %}text-neutral-500 hover:text-brand{% endif %} pb-3">Subscribers</a>
   <a href="{% url 'dashboard:category_list' %}" class="{% if here == 'category_list' %}border-b-2 border-brand text-brand{% else %}text-neutral-500 hover:text-brand{% endif %} pb-3">Categories</a>
 </nav>
 {% endwith %}

@@ -22,6 +22,7 @@ from django.views.decorators.http import require_http_methods
 from accounts.models import AuditEvent
 from tutorials.models import Category, Tutorial, TutorialAccess, TutorialProgress
 
+from core.models import NewsletterSubscriber
 from core.throttle import rate_limit
 from .forms import CategoryForm, TutorialForm
 from tutorials.providers import bunny_upload
@@ -295,6 +296,25 @@ def tutorial_delete(request, pk):
     _audit(request, AuditEvent.Action.TUTORIAL_DELETED, detail=f"tutorial={slug}")
     messages.success(request, f"Deleted “{title}”.")
     return redirect("dashboard:tutorial_list")
+
+
+# --- Newsletter subscribers ------------------------------------------------
+
+@staff_required
+def subscriber_list(request):
+    """Website newsletter sign-ups, stored by core.views.newsletter_subscribe."""
+    q = request.GET.get("q", "").strip()
+    subscribers = NewsletterSubscriber.objects.all()
+    if q:
+        subscribers = subscribers.filter(
+            Q(first_name__icontains=q) | Q(last_name__icontains=q)
+            | Q(email__icontains=q) | Q(interest__icontains=q)
+        )
+    return render(request, "dashboard/subscriber_list.html", {
+        "subscribers": subscribers[:500],
+        "q": q,
+        "total": NewsletterSubscriber.objects.count(),
+    })
 
 
 # --- Categories -------------------------------------------------------------

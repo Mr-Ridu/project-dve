@@ -18,6 +18,7 @@ urlpatterns = [
     path("tutorials/<int:pk>/access/", views.tutorial_access, name="tutorial_access"),
     path("tutorials/<int:pk>/edit/", views.tutorial_edit, name="tutorial_edit"),
     path("tutorials/<int:pk>/delete/", views.tutorial_delete, name="tutorial_delete"),
+    path("subscribers/", views.subscriber_list, name="subscriber_list"),
     path("categories/", views.category_list, name="category_list"),
     path("categories/<int:pk>/delete/", views.category_delete, name="category_delete"),
 ]

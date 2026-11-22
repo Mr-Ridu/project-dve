@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Newsletter subscribers | Staff dashboard{% endblock %}
+
+{% block content %}
+<section class="bg-brand text-white">
+  <div class="mx-auto max-w-6xl px-4 py-12">
+    <p class="text-sm font-bold uppercase tracking-wider text-accent">Staff area</p>
+    <h1 class="mt-2 text-3xl font-bold md:text-4xl">Newsletter subscribers</h1>
+    <p class="mt-3 text-white/85">{{ total }} sign-up{{ total|pluralize }} from the website newsletter pop-up.</p>
+  </div>
+</section>
+
+<div class="mx-auto max-w-6xl px-4 py-12">
+  {% include "dashboard/_staffnav.html" %}
+
+  <form method="get" class="flex flex-wrap items-end gap-3 border border-neutral-200 bg-neutral-50 p-4">
+    <div class="min-w-56 flex-1">
+      <label for="subscriber-q" class="block text-xs font-bold uppercase tracking-wider text-neutral-500">Search</label>
+      <input id="subscriber-q" type="search" name="q" value="{{ q }}" placeholder="Name, email or area of interest"
+             class="mt-1 w-full border border-neutral-300 bg-white px-3 py-2 text-sm">
+    </div>
+    <button type="submit" class="cursor-pointer rounded bg-accent px-6 py-2 text-sm font-bold uppercase text-brand hover:opacity-90">Filter</button>
+    <a href="{% url 'dashboard:subscriber_list' %}" class="px-2 py-2 text-sm font-bold uppercase text-neutral-500 hover:text-brand">Reset</a>
+  </form>
+
+  <div class="mt-8 overflow-x-auto border border-neutral-200">
+    <table class="w-full text-left text-sm">
+      <thead class="bg-neutral-100 text-xs font-bold uppercase tracking-wider text-neutral-500">
+        <tr>
+          <th scope="col" class="px-4 py-3">Name</th>
+          <th scope="col" class="px-4 py-3">Email</th>
+          <th scope="col" class="px-4 py-3">Area of interest</th>
+          <th scope="col" class="px-4 py-3">Signed up</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for subscriber in subscribers %}
+        <tr class="border-t border-neutral-200">
+          <td class="px-4 py-3 font-semibold text-brand">{{ subscriber.full_name }}</td>
+          <td class="px-4 py-3 text-neutral-700"><a href="mailto:{{ subscriber.email }}" class="hover:text-accent">{{ subscriber.email }}</a></td>
+          <td class="px-4 py-3 text-neutral-700">{{ subscriber.interest|default:"—" }}</td>
+          <td class="px-4 py-3 text-neutral-700">{{ subscriber.created_at|date:"Y-m-d H:i" }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="4" class="px-4 py-8 text-center text-neutral-500">No newsletter sign-ups yet.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

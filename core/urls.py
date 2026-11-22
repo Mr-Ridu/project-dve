@@ -17,6 +17,7 @@ urlpatterns = [
     path("contact-us/", views.contact, name="contact-legacy"),
     # Local stubs (real delivery/search configured in later phases)
     path("forms/placeholder/", views.form_placeholder, name="form-placeholder"),
+    path("newsletter/subscribe/", views.newsletter_subscribe, name="newsletter-subscribe"),
     path("search/", views.search, name="search"),
     # Registry content pages — must stay last
     re_path(r"^(?P<slug>[a-z0-9][a-z0-9-]{0,99})/$", views.page_detail, name="page-detail"),

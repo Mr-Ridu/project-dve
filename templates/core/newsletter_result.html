@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}{% if ok %}You are subscribed{% else %}Sign-up problem{% endif %} | {{ company.name }}{% endblock %}
+
+{% block content %}
+<section class="mx-auto max-w-6xl px-4 py-24">
+  {% if ok %}
+  <h1 class="text-4xl font-bold text-brand">Thank you — you are on the list</h1>
+  <p class="mt-4 text-neutral-600">Your details are saved for the newsletter. We will be in touch when the next update is out.</p>
+  {% else %}
+  <h1 class="text-4xl font-bold text-brand">We could not complete that sign-up</h1>
+  <p class="mt-4 text-neutral-600">Please check your first name, email, area of interest and the privacy-policy checkbox, then try again.</p>
+  {% endif %}
+  <p class="mt-6"><a href="{% url 'core:home' %}" class="text-brand underline hover:text-accent">Back to home</a></p>
+</section>
+{% endblock %}

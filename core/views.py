@@ -11,6 +11,8 @@ from django.shortcuts import render
 from django.views.decorators.csrf import requires_csrf_token
 from django.views.decorators.http import require_http_methods
 
+from .forms import NewsletterSignupForm
+from .models import NewsletterSubscriber
 from .site_pages import PAGES
 from .throttle import rate_limit
 
@@ -124,6 +126,32 @@ def form_placeholder(request):
     decision.
     """
     return render(request, "core/form_placeholder.html")
+
+
+# --- Newsletter -------------------------------------------------------------
+@rate_limit("forms")
+@require_http_methods(["POST"])
+def newsletter_subscribe(request):
+    """Store a newsletter pop-up sign-up and show the result page.
+
+    A repeated email refreshes that subscriber instead of adding a duplicate,
+    so the dashboard list holds one row per address.
+    """
+    form = NewsletterSignupForm(request.POST)
+    if not form.is_valid():
+        return render(request, "core/newsletter_result.html", {"ok": False}, status=400)
+    data = form.cleaned_data
+    NewsletterSubscriber.objects.update_or_create(
+        email=data["email"],
+        defaults={
+            "first_name": data["first_name"].strip(),
+            "last_name": (data.get("last_name") or "").strip(),
+            "interest": data["interest"],
+            "consent": True,
+            "ip_address": request.META.get("REMOTE_ADDR") or None,
+        },
+    )
+    return render(request, "core/newsletter_result.html", {"ok": True})
 
 
 # --- Site search ------------------------------------------------------------
