@@ -257,8 +257,14 @@
 }
 
 /* Newsletter pop-up ------------------------------------------------------ */
+/* `flex` lives in a separate rule so the shared `.hidden` utility (which is
+   emitted after this file in the build) can still close the dialog. */
 .nl-popup {
-  @apply fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-4;
+  @apply fixed inset-0 z-50 items-center justify-center overflow-y-auto p-4;
+}
+
+.nl-popup:not(.hidden) {
+  @apply flex;
 }
 
 .nl-popup-backdrop {
