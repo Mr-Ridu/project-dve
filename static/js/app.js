@@ -70,6 +70,35 @@ document.addEventListener("DOMContentLoaded", () => {
     show(0);
   }
 
+  // Newsletter pop-up: opened from the footer sign-up button.
+  const newsletter = document.getElementById("newsletter-popup");
+  if (newsletter) {
+    const openers = document.querySelectorAll("[data-newsletter-open]");
+    const closers = newsletter.querySelectorAll("[data-newsletter-close]");
+    let lastFocused = null;
+
+    const open = () => {
+      lastFocused = document.activeElement;
+      newsletter.classList.remove("hidden");
+      document.body.style.overflow = "hidden";
+      const first = newsletter.querySelector("input");
+      if (first) first.focus();
+    };
+
+    const close = () => {
+      newsletter.classList.add("hidden");
+      document.body.style.overflow = "";
+      if (lastFocused && lastFocused.focus) lastFocused.focus();
+    };
+
+    openers.forEach((button) => button.addEventListener("click", open));
+    closers.forEach((element) => element.addEventListener("click", close));
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && !newsletter.classList.contains("hidden")) close();
+    });
+  }
+
   // Back-to-top button: shown once the page has scrolled a screenful.
   const toTop = document.getElementById("back-to-top");
   if (toTop) {

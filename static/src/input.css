@@ -256,6 +256,43 @@
   color: #fff;
 }
 
+/* Newsletter pop-up ------------------------------------------------------ */
+.nl-popup {
+  @apply fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-4;
+}
+
+.nl-popup-backdrop {
+  @apply absolute inset-0 bg-black/50;
+}
+
+.nl-popup-card {
+  @apply relative my-auto w-full max-w-[600px] overflow-hidden bg-white px-6 py-8 shadow-[0_24px_70px_rgba(25,3,33,0.28)] sm:px-10;
+}
+
+.nl-popup-close {
+  @apply absolute right-3 top-3 inline-flex h-8 w-8 cursor-pointer items-center justify-center text-neutral-500 hover:text-brand;
+}
+
+.nl-popup-title {
+  @apply mt-4 text-center text-[26px] font-light leading-tight text-brand sm:text-[30px];
+}
+
+.nl-popup-form {
+  @apply mt-6 space-y-3;
+}
+
+.nl-input {
+  @apply h-12 w-full border border-neutral-800 bg-white px-3 text-sm font-semibold uppercase tracking-[0.04em] text-brand placeholder:font-bold placeholder:text-neutral-700 focus:border-plum focus:outline-none;
+}
+
+.nl-interest {
+  @apply flex cursor-pointer items-center gap-2 text-[13px] text-brand;
+}
+
+.nl-radio {
+  @apply h-[18px] w-[18px] shrink-0 cursor-pointer appearance-none rounded-full border border-neutral-700 bg-white checked:border-[5px] checked:border-plum focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-plum;
+}
+
 .footer-link {
   font-size: 15px;
   font-weight: 700;

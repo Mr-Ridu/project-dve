@@ -168,7 +168,7 @@
   {# --- Footer: contact, company links, sectors, socials, newsletter --- #}
   <footer class="bg-footer text-white">
     <div class="mx-auto max-w-[1400px] px-6 pb-10 pt-12">
-      <div class="grid gap-x-16 gap-y-8 md:grid-cols-[1.378fr_0.582fr_0.973fr_1.204fr]">
+      <div class="grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-[1.05fr_0.9fr_1.2fr_0.8fr_1fr_0.95fr]">
 
         <div>
           <a href="{% url 'core:home' %}" class="inline-flex">
@@ -186,23 +186,44 @@
           <p class="footer-heading">Our Company</p>
           <ul class="mt-4 space-y-2.5">
             <li><a href="{% url 'core:about' %}" class="footer-link">About</a></li>
-            <li><a href="{% url 'core:products' %}" class="footer-link">Products</a></li>
+            <li><a href="{% url 'core:page-detail' 'careers' %}" class="footer-link">Join our team</a></li>
             <li><a href="{% url 'core:services' %}" class="footer-link">Service &amp; Support</a></li>
-            <li><a href="{% url 'core:page-detail' 'our-technology' %}" class="footer-link">Our Technology</a></li>
-            <li><a href="{% url 'core:page-detail' 'events-and-seminars' %}" class="footer-link">Events</a></li>
-            <li><a href="{% url 'core:page-detail' 'for-customer' %}" class="footer-link">For Customer</a></li>
             <li><a href="{% url 'core:contact' %}" class="footer-link">Contact Us</a></li>
           </ul>
         </div>
 
         <div>
-          <p class="footer-heading">Product Sectors</p>
+          <p class="footer-heading">Our procedure</p>
           <ul class="mt-4 space-y-2.5">
-            <li><a href="{% url 'core:products' %}#plant-machinery" class="footer-link">Industrial Plant &amp; Machinery</a></li>
-            <li><a href="{% url 'core:products' %}#energy-power" class="footer-link">Energy &amp; Power</a></li>
-            <li><a href="{% url 'core:products' %}#robotic-automation" class="footer-link">Robotic &amp; Automation</a></li>
-            <li><a href="{% url 'core:products' %}#steel-metal" class="footer-link">Steel &amp; Metal</a></li>
+            <li class="footer-link">CAD/NDA</li>
+            <li class="footer-link">Daily Work/ weekly Review / Monthly Analysis</li>
+            <li class="footer-link">Customer preview &amp; Overview</li>
+            <li class="footer-link">Inside Development</li>
+            <li class="footer-link">Networking &amp; commutation</li>
+            <li class="footer-link">Sustainability</li>
+          </ul>
+        </div>
+
+        <div>
+          <p class="footer-heading">Our Solution</p>
+          <ul class="mt-4 space-y-2.5">
+            <li class="footer-link">Distribution</li>
+            <li class="footer-link">Commercialization</li>
+            <li class="footer-link">Customer Care</li>
+          </ul>
+        </div>
+
+        <div>
+          <p class="footer-heading">Our Segments</p>
+          <ul class="mt-4 space-y-2.5">
+            <li><a href="{% url 'core:products' %}" class="footer-link">Plastic</a></li>
+            <li><a href="{% url 'core:products' %}" class="footer-link">Polymer</a></li>
+            <li><a href="{% url 'core:products' %}" class="footer-link">Rubber</a></li>
+            <li><a href="{% url 'core:products' %}" class="footer-link">Refectory &ndash; Foundry</a></li>
             <li><a href="{% url 'core:products' %}#pharma-biotech" class="footer-link">Pharma &amp; Biotech</a></li>
+            <li><a href="{% url 'core:products' %}#energy-power" class="footer-link">Energy &amp; Power</a></li>
+            <li><a href="{% url 'core:products' %}#steel-metal" class="footer-link">Steel &amp; Metal</a></li>
+            <li><a href="{% url 'core:products' %}#robotic-automation" class="footer-link">Robotic &amp; Automation</a></li>
           </ul>
         </div>
 
@@ -212,14 +233,12 @@
           </div>
 
           <p class="footer-heading mt-9">Join Our Newsletter</p>
-          <form method="post" action="{% url 'core:form-placeholder' %}" class="mt-1.5 rounded-md bg-white px-3 py-2.5">
-            {% csrf_token %}
-            <label for="newsletter-email" class="sr-only">Email address</label>
-            <input id="newsletter-email" type="email" name="email" required placeholder="NEWSLETTER SIGN UP" class="w-full border-0 bg-transparent px-1 pt-1 text-[13px] uppercase tracking-[0.08em] text-neutral-600 placeholder:text-neutral-500">
-            <button type="submit" class="mt-2 inline-flex h-9 w-9 items-center justify-center rounded-sm bg-plum text-white hover:opacity-90" aria-label="Sign up">
+          <button type="button" data-newsletter-open class="mt-1.5 flex w-full cursor-pointer items-center justify-between rounded-md bg-white px-3 py-3 text-[13px] font-semibold uppercase tracking-[0.08em] text-neutral-600 hover:bg-neutral-100" aria-haspopup="dialog" aria-controls="newsletter-popup">
+            <span>Newsletter Sign Up</span>
+            <span class="inline-flex h-9 w-9 items-center justify-center rounded-sm bg-plum text-white">
               <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
-            </button>
-          </form>
+            </span>
+          </button>
         </div>
       </div>
 
@@ -234,6 +253,8 @@
       </div>
     </div>
   </footer>
+
+  {% include "partials/newsletter_popup.html" %}
 
   <a href="#" id="back-to-top" class="fixed bottom-10 right-0 hidden h-9 w-12 flex items-center justify-center bg-plum text-white hover:opacity-90" aria-label="Back to top">
     <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg>
