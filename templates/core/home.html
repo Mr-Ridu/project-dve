@@ -38,7 +38,7 @@
           </svg>
           <h3 class="text-[21px] font-light leading-none text-brand">Community</h3>
         </div>
-        <p class="mt-2 text-[13px] leading-[1.5] text-[#5c5c5c]">We connect engineers, specialists and site teams around the equipment.</p>
+        <p class="mt-2 text-[13px] leading-[1.5] text-[#5c5c5c]">We connect experts to advance radiation therapy and research</p>
       </div>
 
       <div class="mx-auto flex max-w-[250px] flex-col items-center">
@@ -56,7 +56,7 @@
           </svg>
           <h3 class="text-[21px] font-light leading-none text-brand">Knowledge</h3>
         </div>
-        <p class="mt-2 text-[13px] leading-[1.5] text-[#5c5c5c]">We know industrial equipment and how to support it, from commissioning to production.</p>
+        <p class="mt-2 text-[13px] leading-[1.5] text-[#5c5c5c]">We know radiation and how to support it from the lab to the clinic</p>
       </div>
 
       <div class="mx-auto flex max-w-[250px] flex-col items-center">
@@ -68,7 +68,7 @@
           </svg>
           <h3 class="text-[21px] font-light leading-none text-brand">Innovation</h3>
         </div>
-        <p class="mt-2 text-[13px] leading-[1.5] text-[#5c5c5c]">We support new possibilities in automation, control and plant upgrades.</p>
+        <p class="mt-2 text-[13px] leading-[1.5] text-[#5c5c5c]">We support new possibilities in X-ray technology and its application</p>
       </div>
     </div>
 
@@ -79,88 +79,9 @@
   </div>
 </section>
 
-{# 3. User Spotlight — dark four-card band #}
-<section class="bg-[#12061b] text-white">
-  <div class="mx-auto grid max-w-[1400px] gap-12 px-5 py-16 md:grid-cols-[0.92fr_1.08fr] md:items-center md:gap-20 md:py-24">
-    <div>
-      <p class="text-[11px] font-bold uppercase tracking-[0.24em] text-white/60">User Spotlight</p>
-      <h2 class="mt-5 max-w-xl text-[38px] font-semibold leading-[1.04] tracking-[-1.5px] md:text-[54px]">
-        All-encompassing<br>industrial solutions
-      </h2>
-      <p class="mt-6 max-w-md text-[15px] leading-relaxed text-white/70">
-        From specification and procurement to installation and lifetime service, one team stays with your project — so equipment, site works and support move together.
-      </p>
-      <a href="{% url 'core:services' %}" class="mt-8 inline-flex items-center justify-center bg-[#ef5a47] px-7 py-3.5 text-[11px] font-bold uppercase tracking-[0.14em] text-white transition hover:bg-[#d94b39]">More services</a>
-    </div>
-
-    <div class="grid gap-5 sm:grid-cols-2">
-      <article class="bg-white p-7 text-brand">
-        <h3 class="text-[23px] font-normal leading-tight">Leadership</h3>
-        <p class="mt-4 text-[13px] leading-relaxed text-neutral-600">We aspire to maintain our world-class leadership position in every aspect of our business by further developing our team leadership skills, which impact our product design, manufacturing and support.</p>
-      </article>
-      <article class="bg-white p-7 text-brand">
-        <h3 class="text-[23px] font-normal leading-tight">Expertise</h3>
-        <p class="mt-4 text-[13px] leading-relaxed text-neutral-600">We aim to remain at the forefront of our field, developing and integrating the most advanced containment solutions and controlled environment technologies.</p>
-      </article>
-      <article class="bg-white p-7 text-brand">
-        <h3 class="text-[23px] font-normal leading-tight">Partnership</h3>
-        <p class="mt-4 text-[13px] leading-relaxed text-neutral-600">We strive to work in close long-term collaboration with our customers, building solid relationships based on commitment and integrity.</p>
-      </article>
-      <article class="bg-white p-7 text-brand">
-        <h3 class="text-[23px] font-normal leading-tight">Service Excellence</h3>
-        <p class="mt-4 text-[13px] leading-relaxed text-neutral-600">Guided by the philosophy of Quality by Design (QbD), we prioritize quality risk management (QMS), GMP compliance, and transparent communication throughout every project phase. This ensures a robust, quality-centered approach for long-term success.</p>
-      </article>
-    </div>
-  </div>
-</section>
-
-{# 3. Featured News — single card carousel (reference: xstrahl homepage) #}
+{# 3. Five products — one row per sector #}
 <section class="bg-white">
-  <div class="mx-auto max-w-[1200px] px-5 py-14 md:py-20">
-    <p class="text-center text-[11px] font-bold uppercase tracking-[0.24em] text-plum">Featured news</p>
-
-    <div class="mt-7 bg-white shadow-[0_22px_60px_rgba(25,3,33,0.12)]" data-news-carousel>
-      <div class="news-slide is-active" data-news-slide role="group" aria-roledescription="slide" aria-label="1 of 2" aria-hidden="false">
-        <div class="px-8 pt-10 md:px-14 md:pt-12">
-          <img src="{% static 'images/etender-banner.webp' %}" alt="eTender portal on a laptop — Best Bid Everytime, Bid It Until Win It" class="mx-auto block w-full max-w-[624px]" loading="lazy">
-        </div>
-        <div class="px-8 pb-10 pt-7 md:px-14 md:pb-14">
-          <h3 class="max-w-2xl text-[26px] font-light leading-[1.15] tracking-[-0.6px] text-brand md:text-[36px]">
-            E-Tender management, end to end
-          </h3>
-          <p class="mt-5 max-w-2xl text-[14px] leading-relaxed text-[#363940]">
-            From portal registration and document preparation to eligibility checks and online submission, our e-Tender desk keeps every bid compliant and on time — then follows it through to the award.
-          </p>
-          <a href="{% url 'core:page-detail' 'e-tender-management' %}" class="btn-ref btn-ref-outline mt-8">Learn more</a>
-        </div>
-      </div>
-
-      <div class="news-slide md:grid-cols-[1.05fr_1fr] md:items-center" data-news-slide role="group" aria-roledescription="slide" aria-label="2 of 2" aria-hidden="true">
-        <div class="px-8 pb-8 pt-10 md:px-14 md:py-14">
-          <h3 class="max-w-xl text-[26px] font-light leading-[1.15] tracking-[-0.6px] text-brand md:text-[36px]">
-            See What’s New in Industrial Robotics
-          </h3>
-          <p class="mt-5 max-w-lg text-[14px] leading-relaxed text-[#363940]">
-            Learn about the technology in action — robotic cells, controls and safety systems working together on the production floor.
-          </p>
-          <a href="{% url 'core:products' %}#robotic-automation" class="btn-ref btn-ref-outline mt-8">Learn more</a>
-        </div>
-        <div class="px-8 pb-10 md:py-10 md:pl-0 md:pr-12">
-          <img src="{% static 'images/products/robot.jpg' %}" alt="Robotic arm working in an automated production cell" class="h-[220px] w-full object-cover md:h-[300px]" loading="lazy">
-        </div>
-      </div>
-
-      <div class="flex items-center justify-center gap-2 pb-8 md:pb-10" role="group" aria-label="Featured news slides">
-        <button type="button" data-news-dot aria-label="Show featured news 1" aria-pressed="true" class="news-dot"></button>
-        <button type="button" data-news-dot aria-label="Show featured news 2" aria-pressed="false" class="news-dot"></button>
-      </div>
-    </div>
-  </div>
-</section>
-
-{# 3. Five sectors #}
-<section class="bg-white">
-  <div class="mx-auto max-w-[1400px] px-5 py-14 md:py-20">
+  <div class="mx-auto max-w-[1400px] px-5 pb-14 pt-6 md:pb-20 md:pt-10">
     <div class="max-w-2xl">
       <p class="eyebrow">What we supply</p>
       <h2 class="mt-3 text-[30px] font-light leading-[1.2] text-brand md:text-[40px]">Five sectors. One supply partner.</h2>
@@ -200,7 +121,32 @@
   </div>
 </section>
 
-{# 4. Portfolio feature #}
+{# 4. Featured News — single card #}
+<section class="bg-white">
+  <div class="mx-auto max-w-[1200px] px-5 py-14 md:py-20">
+    <p class="text-center text-[11px] font-bold uppercase tracking-[0.24em] text-plum">Featured news</p>
+
+    <div class="mt-7 bg-white shadow-[0_22px_60px_rgba(25,3,33,0.12)]" data-news-carousel>
+      <div class="news-slide is-active" data-news-slide role="group" aria-roledescription="slide" aria-label="Featured news" aria-hidden="false">
+        <div class="px-8 pt-10 md:px-14 md:pt-12">
+          <img src="{% static 'images/etender-banner.webp' %}" alt="eTender portal on a laptop" class="mx-auto block w-full max-w-[624px]" loading="lazy">
+        </div>
+        <div class="px-8 pb-10 pt-7 md:px-14 md:pb-14">
+          <p class="text-[11px] font-bold uppercase tracking-[0.24em] text-plum">Best Bid Everytime, Bid It Until Win It</p>
+          <h3 class="mt-4 max-w-2xl text-[26px] font-light leading-[1.15] tracking-[-0.6px] text-brand md:text-[36px]">
+            E-Tender management, end to end
+          </h3>
+          <p class="mt-5 max-w-2xl text-[14px] leading-relaxed text-[#363940]">
+            From portal registration and document preparation to eligibility checks and online submission, our e-Tender desk keeps every bid compliant and on time — then follows it through to the award.
+          </p>
+          <a href="{% url 'core:page-detail' 'e-tender-management' %}" class="btn-ref btn-ref-outline mt-8">Learn more</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# 5. Portfolio feature #}
 <section class="bg-[#f6f5f2]">
   <div class="mx-auto grid max-w-[1400px] items-center gap-10 px-5 py-14 md:grid-cols-2 md:gap-16 md:py-20">
     <img src="{% static 'images/products/intro.jpg' %}" alt="CNC machining centre on a factory floor" class="h-[320px] w-full object-cover md:h-[440px]" loading="lazy">
@@ -225,7 +171,7 @@
   </div>
 </section>
 
-{# Learn-more band (moved: sits directly above Service & support) #}
+{# 6. Learn-more band — sits directly above User Spotlight #}
 <section class="bg-white">
   <div class="mx-auto max-w-[1400px] px-5 pb-14 pt-8 md:pb-20 md:pt-10">
     <div class="flex flex-col items-start gap-6 border border-neutral-200 bg-white px-6 py-8 shadow-[0_16px_45px_rgba(25,3,33,0.10)] md:flex-row md:items-center md:gap-10 md:px-10 md:py-9">
@@ -247,7 +193,84 @@
   </div>
 </section>
 
-{# 5. Service and support #}
+{# 7. User Spotlight — dark four-card band #}
+<section class="bg-[#12061b] text-white">
+  <div class="mx-auto grid max-w-[1400px] gap-12 px-5 py-16 md:grid-cols-[0.92fr_1.08fr] md:items-center md:gap-20 md:py-24">
+    <div>
+      <p class="text-[11px] font-bold uppercase tracking-[0.24em] text-white/60">User Spotlight</p>
+      <h2 class="mt-5 max-w-xl text-[38px] font-semibold leading-[1.04] tracking-[-1.5px] md:text-[54px]">
+        All-encompassing<br>industrial solutions
+      </h2>
+      <p class="mt-6 max-w-md text-[15px] leading-relaxed text-white/70">
+        From specification and procurement to installation and lifetime service, one team stays with your project — so equipment, site works and support move together.
+      </p>
+      <a href="{% url 'core:services' %}" class="mt-8 inline-flex items-center justify-center bg-[#ef5a47] px-7 py-3.5 text-[11px] font-bold uppercase tracking-[0.14em] text-white transition hover:bg-[#d94b39]">More services</a>
+    </div>
+
+    <div class="grid gap-5 sm:grid-cols-2">
+      <article class="bg-white p-7 text-brand">
+        <h3 class="text-[23px] font-normal leading-tight">Leadership</h3>
+        <p class="mt-4 text-[13px] leading-relaxed text-neutral-600">We aspire to maintain our world-class leadership position in every aspect of our business by further developing our team leadership skills, which impact our product design, manufacturing and support.</p>
+      </article>
+      <article class="bg-white p-7 text-brand">
+        <h3 class="text-[23px] font-normal leading-tight">Expertise</h3>
+        <p class="mt-4 text-[13px] leading-relaxed text-neutral-600">We aim to remain at the forefront of our field, developing and integrating the most advanced containment solutions and controlled environment technologies.</p>
+      </article>
+      <article class="bg-white p-7 text-brand">
+        <h3 class="text-[23px] font-normal leading-tight">Partnership</h3>
+        <p class="mt-4 text-[13px] leading-relaxed text-neutral-600">We strive to work in close long-term collaboration with our customers, building solid relationships based on commitment and integrity.</p>
+      </article>
+      <article class="bg-white p-7 text-brand">
+        <h3 class="text-[23px] font-normal leading-tight">Service Excellence</h3>
+        <p class="mt-4 text-[13px] leading-relaxed text-neutral-600">Guided by the philosophy of Quality by Design (QbD), we prioritize quality risk management (QMS), GMP compliance, and transparent communication throughout every project phase. This ensures a robust, quality-centered approach for long-term success.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+{# 8. Latest news & updates — one large image with three resource links #}
+<section class="bg-white">
+  <div class="mx-auto grid max-w-[1240px] items-stretch gap-10 px-5 py-14 md:grid-cols-[1.18fr_1fr] md:gap-14 md:py-20 lg:gap-20">
+    <figure>
+      <img src="{% static 'images/news/latest-news.webp' %}" alt="Aerial view of a city waterfront and skyline" class="aspect-[1.18/1] w-full rounded-sm object-cover" loading="lazy">
+      <figcaption class="mt-6 text-center md:mt-7">
+        <p class="text-[10px] font-bold uppercase tracking-[0.22em] text-[#4a4a4a]">Latest news &amp; updates</p>
+        <h2 class="mx-auto mt-3 max-w-[520px] text-[24px] font-light leading-[1.18] tracking-[-0.4px] text-[#1b1b1b] md:text-[34px] lg:text-[40px]">See what’s new in industrial practice and research</h2>
+      </figcaption>
+    </figure>
+
+    <div class="flex h-full flex-col justify-between divide-y divide-[#e6e6e6] rounded-xl bg-white px-5 py-2 shadow-[0_10px_40px_rgba(25,3,33,0.14)] md:px-7 md:py-3">
+      <article class="grid flex-1 grid-cols-[92px_1fr] items-center gap-4 py-6 md:grid-cols-[190px_1fr] md:gap-6 md:py-7">
+        <img src="{% static 'images/news/presentations.jpg' %}" alt="Engineers reviewing a system on a laptop" class="h-[84px] w-full object-cover md:h-[104px]" loading="lazy">
+        <div>
+          <h3 class="text-[10px] font-bold uppercase tracking-[0.14em] text-plum md:text-[11px]">Recent presentations</h3>
+          <p class="mt-2 text-[12px] leading-[1.55] text-[#3b3b3b] md:text-[13px]">Watch our engineers and project teams walk through the systems we supply.</p>
+          <a href="{% url 'core:page-detail' 'learn-and-education' %}" class="mt-2.5 inline-block border-b-2 border-[#1b1b1b] pb-0.5 text-[10px] font-bold uppercase tracking-[0.1em] text-[#1b1b1b] transition hover:border-plum hover:text-plum md:text-[11px]">View presentations</a>
+        </div>
+      </article>
+
+      <article class="grid flex-1 grid-cols-[92px_1fr] items-center gap-4 py-6 md:grid-cols-[190px_1fr] md:gap-6 md:py-7">
+        <img src="{% static 'images/news/case-studies.jpg' %}" alt="Engineers walking through a production facility" class="h-[84px] w-full object-cover md:h-[104px]" loading="lazy">
+        <div>
+          <h3 class="text-[10px] font-bold uppercase tracking-[0.14em] text-plum md:text-[11px]">Recent case studies</h3>
+          <p class="mt-2 text-[12px] leading-[1.55] text-[#3b3b3b] md:text-[13px]">See how plants and production lines run on the equipment we deliver.</p>
+          <a href="{% url 'core:products' %}" class="mt-2.5 inline-block border-b-2 border-[#1b1b1b] pb-0.5 text-[10px] font-bold uppercase tracking-[0.1em] text-[#1b1b1b] transition hover:border-plum hover:text-plum md:text-[11px]">View case studies</a>
+        </div>
+      </article>
+
+      <article class="grid flex-1 grid-cols-[92px_1fr] items-center gap-4 py-6 md:grid-cols-[190px_1fr] md:gap-6 md:py-7">
+        <img src="{% static 'images/news/publications.jpg' %}" alt="Inspection microscope in a laboratory" class="h-[84px] w-full object-cover md:h-[104px]" loading="lazy">
+        <div>
+          <h3 class="text-[10px] font-bold uppercase tracking-[0.14em] text-plum md:text-[11px]">Recent publications</h3>
+          <p class="mt-2 text-[12px] leading-[1.55] text-[#3b3b3b] md:text-[13px]">Read technical notes, briefings and articles from our installations.</p>
+          <a href="{% url 'tutorials:list' %}" class="mt-2.5 inline-block border-b-2 border-[#1b1b1b] pb-0.5 text-[10px] font-bold uppercase tracking-[0.1em] text-[#1b1b1b] transition hover:border-plum hover:text-plum md:text-[11px]">View publications</a>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+{# 9. Service and support #}
 <section class="bg-white">
   <div class="mx-auto grid max-w-[1400px] items-center gap-10 px-5 py-14 md:grid-cols-2 md:gap-16 md:py-20">
     <div class="md:order-2">
@@ -285,7 +308,7 @@
 
 {% include "core/includes/working_process.html" %}
 
-{# 6. Resources #}
+{# 10. Resources #}
 <section class="bg-white">
   <div class="mx-auto max-w-[1400px] px-5 py-16 md:py-20">
     <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
@@ -320,7 +343,7 @@
   </div>
 </section>
 
-{# 7. Contact CTA #}
+{# 11. Contact CTA #}
 <section class="cta-cream">
   <div class="mx-auto flex max-w-[1400px] flex-col items-center gap-6 px-5 py-14 text-center md:py-16">
     <p class="eyebrow">Next step</p>
