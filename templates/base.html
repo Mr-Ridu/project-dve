@@ -172,7 +172,7 @@
 
         <div>
           <a href="{% url 'core:home' %}" class="inline-flex">
-            <img src="{% static company.logo_static_path %}" alt="{{ company.name }} logo" class="h-[52px] w-[52px] rounded-full ring-2 ring-white/70">
+            <img src="{% static company.logo_static_path %}" alt="{{ company.name }} logo" class="h-[70px] w-[70px] rounded-full ring-2 ring-white/70">
           </a>
           <ul class="mt-5 space-y-2.5">
             {% for phone in company.phones %}<li class="font-bold">{{ phone }}</li>{% endfor %}
