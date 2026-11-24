@@ -164,7 +164,7 @@
           <p class="mt-4 max-w-xl text-[14px] leading-relaxed text-[#363940]">{{ sector.description }}</p>
           <p class="mt-4 max-w-xl text-[11px] font-semibold uppercase tracking-[0.12em] text-neutral-500">{% for item in sector.scope %}{{ item }}{% if not forloop.last %} &middot; {% endif %}{% endfor %}</p>
           <div class="mt-7 flex flex-wrap gap-3">
-            <a href="{% url 'core:contact' %}" class="btn-ref btn-ref-outline">Learn more</a>
+            <a href="{% url 'core:product-detail' sector.slug %}" class="btn-ref btn-ref-outline">Learn more</a>
             <a href="{% url 'core:contact' %}" class="btn-ref btn-ref-plum">Request info</a>
           </div>
         </div>

@@ -9,6 +9,7 @@ urlpatterns = [
     path("", views.home, name="home"),
     path("about/", views.about, name="about"),
     path("products/", views.products, name="products"),
+    path("products/<slug:slug>/", views.product_detail, name="product-detail"),
     path("services/", views.services, name="services"),
     path("contact/", views.contact, name="contact"),
     # Original-URL aliases (old slugs keep working)

@@ -19,92 +19,221 @@ from .throttle import rate_limit
 
 # --- Core pages -------------------------------------------------------------
 def home(request):
-    return render(request, "core/home.html", {"sectors": PRODUCT_SECTORS})
+    """Landing page; the presentations band shows the first four tutorials.
+
+    Thumbnails are public, but playback stays behind the tutorial access rules
+    (can_access is re-checked on the detail and playback endpoints).
+    """
+    from tutorials.access import annotate_queryset
+    from tutorials.models import Tutorial
+
+    tutorials = annotate_queryset(
+        Tutorial.objects.filter(is_published=True).select_related("category"), request.user
+    )[:4]
+    return render(
+        request,
+        "core/home.html",
+        {"sectors": PRODUCT_SECTORS, "tutorials": tutorials},
+    )
 
 
 def about(request):
     return render(request, "core/about.html")
 
 
-# Product portfolio — five sectors, rendered as alternating image/text rows
-# on the products page (same layout as the reference site).
+# Product portfolio — five sectors, each with its own detail page.
+# `description` is the two-line teaser used on the home page and the portfolio
+# rows; `details` and `scope` carry the full sector copy to /products/<slug>/.
 PRODUCT_SECTORS = [
     {
         "slug": "plant-machinery",
         "name": "Industrial Plant & Machinery",
         "tagline": "Built for strength. Built for success.",
         "short": "Processing, handling and line equipment built around your throughput.",
+        "description": (
+            "Mechanical design, plant layout, maintenance engineering and process operations for "
+            "raw-material processing \u2014 from mixing, grinding, granulation and drying to "
+            "casting-related technologies."
+        ),
+        "details": [
+            (
+                "Our company covers mechanical design plant layout, maintenance engineering and "
+                "process operations to provide products and services related to raw material "
+                "processing."
+            ),
+            (
+                "We work across mixing technology, grinding technology, granulation technology and "
+                "drying technology, together with casting-related technologies \u2014 towards "
+                "concrete, plaster, ceramics, refractory, glass, lead acid battery, lithium-ion "
+                "battery, carbon, iron and steel."
+            ),
+        ],
         "image": "images/products/client-plant.webp",
         "alt": "Industrial plant and machinery on site",
-        "description": (
-            "Industrial plant and machinery for production facilities, from single machines "
-            "to complete lines, with after-sales service and technical expertise. We work "
-            "around your layout, utilities and production targets to keep the line running."
-        ),
-        "scope": ["Single machines", "Complete lines", "Installation", "After-sales service"],
+        "scope": [
+            "Mixing technology",
+            "Grinding technology",
+            "Granulation technology",
+            "Drying technology",
+            "Casting-related technologies",
+            "Concrete, plaster & ceramics",
+            "Refractory & glass",
+            "Lead acid & lithium-ion battery",
+            "Carbon, iron & steel",
+        ],
     },
     {
         "slug": "energy-power",
         "name": "Energy & Power",
         "tagline": "Small steps today, a green tomorrow.",
         "short": "Generation, distribution and balance-of-plant equipment.",
+        "description": (
+            "Solar power systems, modules, inverters, storage batteries and EV charging stations "
+            "\u2014 screened, inspected and supported from consultation through after-sales."
+        ),
+        "details": [
+            (
+                "The stable supply of power is an energy element for the infrastructure supporting "
+                "our modern society. We specialise in solar power systems, solar modules, solar "
+                "inverters, storage batteries and electric vehicle charging stations."
+            ),
+            (
+                "To ensure product quality, we have established strict supplier screening and "
+                "product inspection systems, cooperating with well-known domestic vendors with "
+                "advanced production equipment and mature quality control systems."
+            ),
+            (
+                "We provide services from product consultation and customisation through order "
+                "follow-up to logistics and after-sales support."
+            ),
+        ],
         "image": "images/products/client-energy.webp",
         "alt": "Energy and power sector",
-        "description": (
-            "Systems and equipment for the energy and power sector, backed by maintenance and "
-            "spares supply. Our team supports generation and plant equipment with planned "
-            "maintenance, breakdown response and genuine parts."
-        ),
-        "scope": ["Generation equipment", "Maintenance", "Spares supply", "Technical support"],
+        "scope": [
+            "Solar power systems",
+            "Solar modules",
+            "Solar inverters",
+            "Storage batteries",
+            "EV charging stations",
+            "Product consultation",
+            "Customisation",
+            "Order follow-up",
+            "Logistics & after-sales",
+        ],
     },
     {
         "slug": "robotic-automation",
         "name": "Robotic & Automation",
         "tagline": "Automate the routine. Elevate the human.",
         "short": "Robotic cells and controls integrated with your existing plant.",
+        "description": (
+            "Comprehensive automation solutions that bridge cutting-edge technology and practical "
+            "implementation \u2014 with design and consulting support for efficiency, cost and "
+            "customer experience."
+        ),
+        "details": [
+            (
+                "Transform your industrial operation with our comprehensive automation solutions. "
+                "We bridge the gap between cutting-edge technology and practical implementation, "
+                "delivering reliability, efficiency and innovation."
+            ),
+            (
+                "We design solutions and provide consulting services to businesses to improve "
+                "operational efficiency, reduce costs and create the best possible customer "
+                "experience."
+            ),
+        ],
         "image": "images/products/client-robotics.webp",
         "alt": "Robotic arm and gear in an automated production cell",
-        "description": (
-            "Robotics and automation technology for modern production lines, integrated with "
-            "your existing plant. We specify, install and commission automation cells that fit "
-            "your process and your people."
-        ),
-        "scope": ["Robotic cells", "Line integration", "Controls & safety", "Commissioning"],
+        "scope": [
+            "Automation solutions",
+            "Solution design",
+            "Consulting services",
+            "Operational efficiency",
+            "Cost reduction",
+            "Customer experience",
+        ],
     },
     {
         "slug": "steel-metal",
         "name": "Steel & Metal",
         "tagline": "Creating foundations, creating futures \u2014 precision in every detail.",
         "short": "Heavy-duty equipment for melting, rolling and finishing lines.",
+        "description": (
+            "Tooling and manufacturing expertise for steel and metal \u2014 fiber and tube laser "
+            "cutters, optical loading and unloading, laser welders and cleaners, and CNC machines."
+        ),
+        "details": [
+            (
+                "Our customer focus stays aligned with steel and metal: tooling and manufacturing "
+                "expertise deliver breakthrough solutions that change traditional technologies "
+                "\u2014 through fiber laser cutters, tube laser cutters, optical loading and "
+                "unloading solutions, laser welder and cleaner, and CNC machines."
+            ),
+        ],
         "image": "images/products/client-steel.webp",
         "alt": "Steel coils and surface finishes",
-        "description": (
-            "Solutions for steel and metal processing operations, supplied and supported "
-            "locally. From handling and processing equipment to line upgrades, we help keep "
-            "heavy-duty operations productive."
-        ),
-        "scope": ["Processing equipment", "Handling systems", "Line upgrades", "Local support"],
+        "scope": [
+            "Fiber laser cutters",
+            "Tube laser cutters",
+            "Optical loading & unloading",
+            "Laser welder & cleaner",
+            "CNC machines",
+            "Tooling & manufacturing",
+        ],
     },
     {
         "slug": "pharma-biotech",
         "name": "Pharma & Biotech",
         "tagline": "Science in our hands, health in our mission.",
         "short": "Process equipment and cleanroom systems for regulated production.",
+        "description": (
+            "A one-stop solution for pharmaceutical and biopharmaceutical production, with "
+            "integrated engineering and equipment built for quality and compliance."
+        ),
+        "details": [
+            (
+                "To become the ultimate one-stop solution for pharmaceutical and biopharmaceutical "
+                "production, we bring innovative and comprehensive solutions that drive growth and "
+                "excellence. We aim to empower our clients to achieve sustainable success and "
+                "enhance the quality of life for people."
+            ),
+            (
+                "Our commitment to quality and innovation provides cutting-edge biopharmaceutical "
+                "equipment and integrated pharmaceutical engineering solutions \u2014 "
+                "anti-counterfeiting and brand protection solutions; thermal solutions for the "
+                "transportation, handling and storage of thermo-sensitive products; leak detection "
+                "and visual inspection; and technology for transdermal patches and oral films."
+            ),
+        ],
         "image": "images/products/client-pharma.webp",
         "alt": "Laboratory instrument for pharmaceutical analysis",
-        "description": (
-            "Process equipment and systems for pharmaceutical and biotechnology production, "
-            "supplied with installation, validation support and spare parts. We help specify "
-            "equipment that fits your process, cleanroom class and qualification requirements "
-            "\u2014 then support it through its working life."
-        ),
-        "scope": ["Process equipment", "Cleanroom systems", "Validation support", "Spares & service"],
+        "scope": [
+            "Biopharmaceutical equipment",
+            "Integrated pharma engineering",
+            "Anti-counterfeiting & brand protection",
+            "Thermal solutions",
+            "Leak detection & visual inspection",
+            "Transdermal patches & oral films",
+        ],
     },
 ]
 
 
 def products(request):
     return render(request, "core/products.html", {"sectors": PRODUCT_SECTORS})
+
+
+def product_detail(request, slug):
+    """One sector's page; unknown slugs are a 404, not a redirect."""
+    sector = next((s for s in PRODUCT_SECTORS if s["slug"] == slug), None)
+    if sector is None:
+        raise Http404("Not found")
+    return render(
+        request,
+        "core/product_detail.html",
+        {"sector": sector, "sectors": PRODUCT_SECTORS},
+    )
 
 
 def services(request):

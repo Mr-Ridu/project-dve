@@ -27,11 +27,11 @@
             <li class="nav-item">
               <a href="{% url 'core:products' %}" class="nav-link" aria-haspopup="true">Products <span class="nav-plus" aria-hidden="true">+</span></a>
               <ul class="nav-panel">
-                <li><a href="{% url 'core:products' %}#plant-machinery">Industrial Plant &amp; Machinery</a></li>
-                <li><a href="{% url 'core:products' %}#energy-power">Energy &amp; Power</a></li>
-                <li><a href="{% url 'core:products' %}#robotic-automation">Robotic &amp; Automation</a></li>
-                <li><a href="{% url 'core:products' %}#steel-metal">Steel &amp; Metal</a></li>
-                <li><a href="{% url 'core:products' %}#pharma-biotech">Pharma &amp; Biotech</a></li>
+                <li><a href="{% url 'core:product-detail' 'plant-machinery' %}">Industrial Plant &amp; Machinery</a></li>
+                <li><a href="{% url 'core:product-detail' 'energy-power' %}">Energy &amp; Power</a></li>
+                <li><a href="{% url 'core:product-detail' 'robotic-automation' %}">Robotic &amp; Automation</a></li>
+                <li><a href="{% url 'core:product-detail' 'steel-metal' %}">Steel &amp; Metal</a></li>
+                <li><a href="{% url 'core:product-detail' 'pharma-biotech' %}">Pharma &amp; Biotech</a></li>
                 <li class="nav-sep" role="separator"></li>
                 <li><a href="{% url 'core:products' %}">All products</a></li>
               </ul>
@@ -95,11 +95,11 @@
     <div class="second-bar hidden text-white lg:block">
       <nav class="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-x-6 gap-y-3 px-5 py-5 min-[1400px]:px-0" aria-label="Sectors">
         <ul class="flex flex-wrap items-center text-[15px] font-bold">
-          <li class="second-bar-item"><a href="{% url 'core:products' %}#plant-machinery">Industrial Plant &amp; Machinery</a></li>
-          <li class="second-bar-item"><a href="{% url 'core:products' %}#energy-power">Energy &amp; Power</a></li>
-          <li class="second-bar-item"><a href="{% url 'core:products' %}#robotic-automation">Robotic &amp; Automation</a></li>
-          <li class="second-bar-item"><a href="{% url 'core:products' %}#steel-metal">Steel &amp; Metal</a></li>
-          <li class="second-bar-item second-bar-item-last"><a href="{% url 'core:products' %}#pharma-biotech">Pharma &amp; Biotech</a></li>
+          <li class="second-bar-item"><a href="{% url 'core:product-detail' 'plant-machinery' %}">Industrial Plant &amp; Machinery</a></li>
+          <li class="second-bar-item"><a href="{% url 'core:product-detail' 'energy-power' %}">Energy &amp; Power</a></li>
+          <li class="second-bar-item"><a href="{% url 'core:product-detail' 'robotic-automation' %}">Robotic &amp; Automation</a></li>
+          <li class="second-bar-item"><a href="{% url 'core:product-detail' 'steel-metal' %}">Steel &amp; Metal</a></li>
+          <li class="second-bar-item second-bar-item-last"><a href="{% url 'core:product-detail' 'pharma-biotech' %}">Pharma &amp; Biotech</a></li>
         </ul>
         <div class="flex flex-wrap items-center gap-3 min-[1400px]:gap-[75px]">
           <a href="{% url 'core:services' %}" class="btn-cta bg-plum text-white">Request Support</a>
@@ -114,11 +114,11 @@
         <p class="py-2 uppercase tracking-wide">Products <span class="nav-plus" aria-hidden="true">+</span></p>
         <ul class="mb-2 ml-4 space-y-1 border-l border-neutral-200 pl-4 font-normal">
           <li><a href="{% url 'core:products' %}" class="block py-1 hover:text-accent">All products</a></li>
-          <li><a href="{% url 'core:products' %}#plant-machinery" class="block py-1 hover:text-accent">Industrial Plant &amp; Machinery</a></li>
-          <li><a href="{% url 'core:products' %}#energy-power" class="block py-1 hover:text-accent">Energy &amp; Power</a></li>
-          <li><a href="{% url 'core:products' %}#robotic-automation" class="block py-1 hover:text-accent">Robotic &amp; Automation</a></li>
-          <li><a href="{% url 'core:products' %}#steel-metal" class="block py-1 hover:text-accent">Steel &amp; Metal</a></li>
-          <li><a href="{% url 'core:products' %}#pharma-biotech" class="block py-1 hover:text-accent">Pharma &amp; Biotech</a></li>
+          <li><a href="{% url 'core:product-detail' 'plant-machinery' %}" class="block py-1 hover:text-accent">Industrial Plant &amp; Machinery</a></li>
+          <li><a href="{% url 'core:product-detail' 'energy-power' %}" class="block py-1 hover:text-accent">Energy &amp; Power</a></li>
+          <li><a href="{% url 'core:product-detail' 'robotic-automation' %}" class="block py-1 hover:text-accent">Robotic &amp; Automation</a></li>
+          <li><a href="{% url 'core:product-detail' 'steel-metal' %}" class="block py-1 hover:text-accent">Steel &amp; Metal</a></li>
+          <li><a href="{% url 'core:product-detail' 'pharma-biotech' %}" class="block py-1 hover:text-accent">Pharma &amp; Biotech</a></li>
         </ul>
       </li>
       <li><a href="{% url 'core:about' %}" class="block py-2 uppercase tracking-wide hover:text-accent">About</a></li>
@@ -216,14 +216,11 @@
         <div>
           <p class="footer-heading">Our Segments</p>
           <ul class="mt-4 space-y-2.5">
-            <li><a href="{% url 'core:products' %}" class="footer-link">Plastic</a></li>
-            <li><a href="{% url 'core:products' %}" class="footer-link">Polymer</a></li>
-            <li><a href="{% url 'core:products' %}" class="footer-link">Rubber</a></li>
-            <li><a href="{% url 'core:products' %}" class="footer-link">Refectory &ndash; Foundry</a></li>
-            <li><a href="{% url 'core:products' %}#pharma-biotech" class="footer-link">Pharma &amp; Biotech</a></li>
-            <li><a href="{% url 'core:products' %}#energy-power" class="footer-link">Energy &amp; Power</a></li>
-            <li><a href="{% url 'core:products' %}#steel-metal" class="footer-link">Steel &amp; Metal</a></li>
-            <li><a href="{% url 'core:products' %}#robotic-automation" class="footer-link">Robotic &amp; Automation</a></li>
+            <li><a href="{% url 'core:product-detail' 'plant-machinery' %}" class="footer-link">Industrial Plant &amp; Machinery</a></li>
+            <li><a href="{% url 'core:product-detail' 'pharma-biotech' %}" class="footer-link">Pharma &amp; Biotech</a></li>
+            <li><a href="{% url 'core:product-detail' 'steel-metal' %}" class="footer-link">Steel &amp; Metal</a></li>
+            <li><a href="{% url 'core:product-detail' 'robotic-automation' %}" class="footer-link">Robotic &amp; Automation</a></li>
+            <li><a href="{% url 'core:product-detail' 'energy-power' %}" class="footer-link">Energy &amp; Power</a></li>
           </ul>
         </div>
 
