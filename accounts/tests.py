@@ -6,12 +6,12 @@ class UserModelTests(TestCase):
     def test_auth_user_model_is_custom(self):
         self.assertEqual(get_user_model()._meta.label, "accounts.User")
 
-    def test_new_user_defaults_to_pending(self):
+    def test_new_user_defaults_to_approved(self):
         user = get_user_model().objects.create_user("alice", password="secret-123")
-        self.assertEqual(user.approval_status, "pending")
+        self.assertEqual(user.approval_status, "approved")
         self.assertFalse(user.access_all_tutorials)
         self.assertTrue(user.is_active)
-        self.assertFalse(user.is_approved())
+        self.assertTrue(user.is_approved())
 
     def test_approved_active_user_is_approved(self):
         user = get_user_model().objects.create_user("bob", password="secret-123")

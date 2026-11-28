@@ -46,10 +46,10 @@ class SuperuserApprovalTests(TestCase):
         self.assertIsNotNone(user.approved_at)
         self.assertTrue(user.is_approved())
 
-    def test_ordinary_user_still_starts_pending(self):
+    def test_ordinary_user_starts_approved(self):
         user = User.objects.create_user("plain_probe", "p@example.invalid", "Zx7!quiet-Harbor-92")
-        self.assertEqual(user.approval_status, User.ApprovalStatus.PENDING)
-        self.assertFalse(user.is_approved())
+        self.assertEqual(user.approval_status, User.ApprovalStatus.APPROVED)
+        self.assertTrue(user.is_approved())
 
 
 class UtilityBarTests(TestCase):

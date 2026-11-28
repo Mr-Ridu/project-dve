@@ -25,8 +25,9 @@ class User(AbstractUser):
     approval_status = models.CharField(
         max_length=10,
         choices=ApprovalStatus.choices,
-        default=ApprovalStatus.PENDING,
-        help_text="Accounts start pending; staff approval is required before tutorial access.",
+        default=ApprovalStatus.APPROVED,
+        help_text="New accounts can watch tutorials right away. Set to Pending to hold "
+        "an account for review, or Rejected to close it.",
     )
     access_all_tutorials = models.BooleanField(
         default=False,
@@ -56,8 +57,9 @@ class User(AbstractUser):
         that can log in but cannot open a single tutorial, which looks like a
         broken site rather than a permission rule.
         """
-        if self.is_superuser and self.approval_status == self.ApprovalStatus.PENDING:
-            self.approval_status = self.ApprovalStatus.APPROVED
+        if self.is_superuser:
+            if self.approval_status == self.ApprovalStatus.PENDING:
+                self.approval_status = self.ApprovalStatus.APPROVED
             if not self.approved_at:
                 self.approved_at = timezone.now()
         super().save(*args, **kwargs)

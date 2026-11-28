@@ -64,9 +64,7 @@ def register(request):
                 ip_address=ip,
             )
             messages.success(
-                request,
-                "Account created. You can sign in now, but tutorial access stays "
-                "locked until an administrator approves your account.",
+                request, "Account created. Sign in to watch the tutorials."
             )
             logger.info("registration pending approval: %s", user.username)
             return redirect("accounts:login")

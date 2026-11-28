@@ -52,7 +52,8 @@ class RegistrationForm(UserCreationForm):
         user.email = self.cleaned_data["email"]
         user.first_name = self.cleaned_data["first_name"]
         user.last_name = self.cleaned_data["last_name"]
-        user.approval_status = "pending"  # lifecycle invariant, set on every save
+        # Registration is open: the model default (approved) stands, so a new
+        # account can watch straight away and staff never have to unlock it.
         if commit:
             user.save()
         return user

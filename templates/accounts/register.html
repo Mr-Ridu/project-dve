@@ -5,7 +5,7 @@
 {% block content %}
 <section class="mx-auto max-w-md px-4 py-16">
   <h1 class="text-3xl font-bold text-brand">Create an account</h1>
-  <p class="mt-3 text-neutral-600">Tutorial access stays locked until an administrator approves your account.</p>
+  <p class="mt-3 text-neutral-600">Create an account and you can watch every tutorial right away.</p>
 
   <form method="post" action="{% url 'accounts:register' %}" class="mt-8 space-y-4">
     {% csrf_token %}

@@ -13,7 +13,7 @@
 
 <section class="mx-auto max-w-6xl px-4 py-16">
   {% if not user.is_authenticated %}
-  <p class="mb-10 text-neutral-700"><a href="{% url 'accounts:login' %}" class="font-semibold text-brand underline hover:text-accent">Sign in</a> to watch tutorials. New accounts need approval first.</p>
+  <p class="mb-10 text-neutral-700"><a href="{% url 'accounts:login' %}" class="font-semibold text-brand underline hover:text-accent">Sign in</a> to watch tutorials — or <a href="{% url 'accounts:register' %}" class="font-semibold text-brand underline hover:text-accent">create an account</a> to start watching straight away.</p>
   {% endif %}
 
   {% for group in groups %}

@@ -41,11 +41,11 @@ class ThrottleIsolation(TestCase):
 
 
 class RegistrationTests(ThrottleIsolation):
-    def test_registration_creates_pending_user_and_audits(self):
+    def test_registration_creates_watching_user_and_audits(self):
         r = self.client.post(reverse("accounts:register"), registration_data())
         self.assertRedirects(r, reverse("accounts:login"))
         user = User.objects.get(username="newuser")
-        self.assertEqual(user.approval_status, "pending")
+        self.assertEqual(user.approval_status, "approved")
         self.assertFalse(user.access_all_tutorials)
         event = AuditEvent.objects.get(action=AuditEvent.Action.USER_REGISTERED)
         self.assertEqual(event.target_user, user)
