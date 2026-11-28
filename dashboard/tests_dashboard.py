@@ -4,10 +4,7 @@ Acceptance from the plan: ordinary users are blocked from every dashboard
 action; no self-approval paths; mutations POST-only + CSRF; all approval,
 flag and grant actions audited.
 """
-from unittest import mock
-
 from django.core.cache import cache
-from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase
 from django.urls import reverse
 
@@ -279,72 +276,53 @@ class TutorialAccessScreen(DashboardBase):
         )
 
 
-class VideoUpload(DashboardBase):
-    """Dashboard upload -> Bunny Stream; the staff never opens bunny.net."""
+class YouTubeReference(DashboardBase):
+    """Staff paste a YouTube link; the id is validated, nothing is uploaded."""
 
-    UPLOAD = "tutorials.providers.bunny_upload.upload_file"
-
-    def _post_new(self, client, *, video_file=None):
-        data = {
-            "title": "Walkthrough 2", "description": "x", "video_provider": "none",
-            "video_ref": "", "is_published": "on", "ordering": "0",
+    def _post_new(self, client, ref, provider="youtube"):
+        return client.post(reverse("dashboard:tutorial_create"), {
+            "title": "Walkthrough 2", "description": "x", "video_provider": provider,
+            "video_ref": ref, "is_published": "on", "ordering": "0",
             "duration_seconds": "0", "estimated_minutes": "5",
-        }
-        if video_file is not None:
-            data["video_file"] = video_file
-        return client.post(reverse("dashboard:tutorial_create"), data)
+        })
 
-    def test_upload_sets_provider_and_reference(self):
-        video = SimpleUploadedFile("talk.mp4", b"mp4-bytes")
-        with mock.patch(self.UPLOAD, return_value="guid-123") as upload:
-            response = self._post_new(self.signed_in_staff, video_file=video)
+    def test_link_is_stored_as_the_provider_reference(self):
+        response = self._post_new(self.signed_in_staff, "https://youtu.be/lKrpbUhDRJ4?si=abc")
         self.assertEqual(response.status_code, 302)
         created = Tutorial.objects.get(title="Walkthrough 2")
-        self.assertEqual(created.video_provider, "bunny")
-        self.assertEqual(created.video_ref, "guid-123")
-        upload.assert_called_once()
+        self.assertEqual(created.video_provider, "youtube")
+        self.assertEqual(created.video_ref, "https://youtu.be/lKrpbUhDRJ4?si=abc")
 
-    def test_upload_failure_saves_nothing_and_explains(self):
-        from tutorials.providers.bunny_upload import UploadError
+    def test_bare_id_is_accepted(self):
+        response = self._post_new(self.signed_in_staff, "lKrpbUhDRJ4")
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(Tutorial.objects.filter(title="Walkthrough 2").exists())
 
-        video = SimpleUploadedFile("talk.mp4", b"mp4-bytes")
-        with mock.patch(self.UPLOAD, side_effect=UploadError("Bunny rejected the API key.")):
-            response = self._post_new(self.signed_in_staff, video_file=video)
+    def test_empty_reference_is_a_form_error(self):
+        response = self._post_new(self.signed_in_staff, "")
         self.assertEqual(response.status_code, 200)  # re-rendered with the error
-        self.assertContains(response, "Bunny rejected the API key")
+        self.assertContains(response, "Paste the YouTube video id")
         self.assertFalse(Tutorial.objects.filter(title="Walkthrough 2").exists())
 
-    def test_unconfigured_upload_is_a_form_error(self):
-        # No mocking: the real client answers with the "set BUNNY_STREAM_API_KEY"
-        # explanation when the management key is absent.
-        video = SimpleUploadedFile("talk.mp4", b"mp4-bytes")
-        with self.settings(BUNNY_STREAM_API_KEY=""):
-            response = self._post_new(self.signed_in_staff, video_file=video)
+    def test_non_youtube_reference_is_a_form_error(self):
+        response = self._post_new(self.signed_in_staff, "https://vimeo.com/12345")
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "BUNNY_STREAM_API_KEY")
+        self.assertContains(response, "That is not a YouTube video id")
         self.assertFalse(Tutorial.objects.filter(title="Walkthrough 2").exists())
 
-    def test_wrong_extension_rejected_before_any_upload(self):
-        video = SimpleUploadedFile("installer.exe", b"MZ")
-        with mock.patch(self.UPLOAD) as upload:
-            response = self._post_new(self.signed_in_staff, video_file=video)
-        self.assertEqual(response.status_code, 200)
-        upload.assert_not_called()
-        self.assertFalse(Tutorial.objects.filter(title="Walkthrough 2").exists())
-
-    def test_no_file_leaves_the_existing_video_untouched(self):
+    def test_saving_again_keeps_the_reference(self):
         Tutorial.objects.filter(pk=self.tutorial.pk).update(
-            video_provider="bunny", video_ref="original-guid"
+            video_provider="youtube", video_ref="lKrpbUhDRJ4"
         )
         response = self.signed_in_staff.post(
             reverse("dashboard:tutorial_edit", args=[self.tutorial.pk]),
             {"title": self.tutorial.title, "slug": self.tutorial.slug, "description": "",
-             "video_provider": "bunny", "video_ref": "original-guid", "ordering": "0",
+             "video_provider": "youtube", "video_ref": "lKrpbUhDRJ4", "ordering": "0",
              "duration_seconds": "0", "estimated_minutes": "0"},
         )
         self.assertEqual(response.status_code, 302)
         self.tutorial.refresh_from_db()
-        self.assertEqual(self.tutorial.video_ref, "original-guid")
+        self.assertEqual(self.tutorial.video_ref, "lKrpbUhDRJ4")
 
 
 class TutorialCrud(DashboardBase):

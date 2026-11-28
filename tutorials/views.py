@@ -1,14 +1,12 @@
 """Catalog + playback authorization views (Phase 5, extended in Phase 6).
 
 Every protected request re-evaluates can_access() server-side. The playback
-endpoint is provider-agnostic: Phase 6 added Bunny Stream as the decided
-provider, so stage A mints a short-lived opaque token and stage B (`redeem`)
-turns it into signed Bunny playback after a second access re-check.
+endpoint is provider-agnostic: stage A mints a short-lived opaque token and
+stage B (`redeem`) turns it into the provider's playback payload after a second
+access re-check.
 """
 import secrets
-import time
 
-from django.conf import settings
 from django.core.cache import cache
 from django.utils import timezone
 from django.http import JsonResponse
@@ -20,13 +18,10 @@ from django.views.decorators.http import require_http_methods
 from core.throttle import rate_limit
 from .access import annotate_queryset, can_access, can_access_all
 from .models import Category, Tutorial, TutorialProgress
-from .providers import bunny, youtube
+from .providers import youtube
 from accounts.models import User as UserModel
 
 TOKEN_TTL_SECONDS = 300  # short-lived by design; expires <= 5 minutes
-# Bunny embed-link TTL: embeds cannot be re-signed while playing, so this is
-# longer than the authorization token but still short-lived (1 hour).
-BUNNY_EMBED_TTL_SECONDS = 3600
 
 
 def _visible_library(user):
@@ -125,8 +120,8 @@ def playback_redeem(request):
     """Stage B: turn an opaque authorize token into signed playback (Phase 6).
 
     One-time redemption: the token is consumed on first use, re-checks access,
-    and only then signs the Bunny embed URL. Bunny config missing → honest
-    503, not a silent failure.
+    and only then builds the provider payload. A tutorial with no playable
+    reference answers an honest 503, not a silent failure.
     """
     token = request.POST.get("token", "")
     context = cache.get(f"play_token:{token}") if token else None
@@ -167,25 +162,13 @@ def playback_redeem(request):
             )
         return JsonResponse({"provider": "youtube", "embed_url": youtube.embed_url(vid)})
 
-    security_key = getattr(settings, "BUNNY_STREAM_SECURITY_KEY", "")
-    library_id = getattr(settings, "BUNNY_STREAM_LIBRARY_ID", "")
-    if tutorial.video_provider == Tutorial.VideoProvider.NONE or not (security_key and library_id and tutorial.video_ref):
-        return JsonResponse(
-            {
-                "detail": "Video is not configured yet (or Bunny credentials missing).",
-                "code": "provider_not_configured",
-            },
-            status=503,
-        )
-
-    expires = int(time.time()) + BUNNY_EMBED_TTL_SECONDS
+    # No provider, or one this build no longer supports: say so plainly.
     return JsonResponse(
         {
-            "provider": "bunny",
-            "embed_url": bunny.embed_url(library_id, tutorial.video_ref, security_key, expires),
-            "embed_expires_in": BUNNY_EMBED_TTL_SECONDS,
+            "detail": "Video is not configured yet.",
+            "code": "provider_not_configured",
         },
-        status=200,
+        status=503,
     )
 
 

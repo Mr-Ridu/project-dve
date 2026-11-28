@@ -68,8 +68,8 @@ class TutorialAdmin(admin.ModelAdmin):
             "Playback",
             {
                 "fields": ("video_provider", "video_ref"),
-                "description": "video_ref is the Bunny video GUID, the YouTube video "
-                "id (or link) for an unlisted video, or a plain URL in development. "
+                "description": "video_ref is the YouTube video id (or link) for an "
+                "unlisted video, or a plain URL in development. "
                 "It is never exposed except through /tutorials/<slug>/authorize/ + "
                 "redeem, which re-check access first.",
             },

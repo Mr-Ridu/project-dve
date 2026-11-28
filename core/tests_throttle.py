@@ -4,8 +4,6 @@ Limits are settings-driven so tests can shrink them. Every test starts from a
 cleared cache because the counters live there (same convention as the
 dashboard/catalog test bases).
 """
-import urllib.error
-
 from django.core.cache import cache
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
@@ -138,7 +136,7 @@ class PublicEndpointThrottle(TestCase):
             response = self.client.get(url)
         body = response.content.decode()
         self.assertEqual(response.status_code, 429)
-        for marker in ("BUNNY", "SECRET_KEY", "Traceback", "File \""):
+        for marker in ("SECRET_KEY", "Traceback", "File \""):
             self.assertNotIn(marker, body)
 
 
@@ -165,30 +163,3 @@ class UploadThrottle(TestCase):
         response = self.client.post(url, {**payload, "title": "T3"})
         self.assertEqual(response.status_code, 429)
         self.assertFalse(Tutorial.objects.filter(title="T3").exists())  # view never ran
-
-
-class ErrorPathsLeakNothing(TestCase):
-    """Credentials must not survive into any error a staff member sees."""
-
-    def test_upload_error_contains_no_key_material(self):
-        from unittest import mock
-
-        from django.core.files.uploadedfile import SimpleUploadedFile
-
-        from tutorials.providers import bunny_upload
-
-        sentinel = "SENTINEL-MGMT-KEY"
-        with override_settings(BUNNY_STREAM_API_KEY=sentinel, BUNNY_STREAM_LIBRARY_ID="759"):
-            with mock.patch(
-                "urllib.request.urlopen",
-                side_effect=urllib.error.HTTPError(
-                    "https://video.bunnycdn.com/x", 401, "Unauthorized", {}, None
-                ),
-            ):
-                with self.assertRaises(bunny_upload.UploadError) as ctx:
-                    bunny_upload.upload_file(
-                        SimpleUploadedFile("t.mp4", b"x"), title="T"
-                    )
-        message = str(ctx.exception)
-        self.assertIn("401", message)          # the operator learns what failed
-        self.assertNotIn(sentinel, message)    # but never the credential

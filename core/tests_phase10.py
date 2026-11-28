@@ -2,9 +2,9 @@
 
 These are configuration assertions, not a deployment test — Passenger, MySQL and
 cPanel itself cannot run here. They catch the failures that would otherwise only
-appear on the host: a missing WSGI entry point, Bunny keys never wired to the
-environment, a per-worker cache silently breaking the playback handshake, and
-secrets accidentally committed inside the docs.
+appear on the host: a missing WSGI entry point, settings the guides rely on
+never wired to the environment, a per-worker cache silently breaking the
+playback handshake, and secrets accidentally committed inside the docs.
 """
 import os
 import re
@@ -34,8 +34,6 @@ CLEAN_ENV = {
         "DB_PASSWORD",
         "DB_HOST",
         "DB_PORT",
-        "BUNNY_STREAM_LIBRARY_ID",
-        "BUNNY_STREAM_SECURITY_KEY",
     }
 }
 
@@ -104,27 +102,16 @@ class PassengerEntryPointTests(SimpleTestCase):
 class EnvironmentWiringTests(SimpleTestCase):
     """Settings the guides tell the operator to set must actually be read."""
 
-    def test_bunny_keys_come_from_the_environment(self):
+    def test_no_bunny_settings_remain(self):
+        """The Bunny Stream provider is gone; stray keys would confuse operators."""
         result = run_python(
             [
                 "from django.conf import settings",
-                "print(settings.BUNNY_STREAM_LIBRARY_ID)",
-                "print(settings.BUNNY_STREAM_SECURITY_KEY)",
-            ],
-            {"BUNNY_STREAM_LIBRARY_ID": "12345", "BUNNY_STREAM_SECURITY_KEY": "test-key-not-real"},
-        )
-        self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertEqual(result.stdout.split(), ["12345", "test-key-not-real"])
-
-    def test_bunny_keys_default_to_empty_not_undefined(self):
-        result = run_python(
-            [
-                "from django.conf import settings",
-                "print(repr(settings.BUNNY_STREAM_LIBRARY_ID), repr(settings.BUNNY_STREAM_SECURITY_KEY))",
+                "print(sorted(n for n in dir(settings) if 'BUNNY' in n))",
             ]
         )
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertEqual(result.stdout.strip(), "'' ''")
+        self.assertEqual(result.stdout.strip(), "[]")
 
     def test_production_defaults_to_the_shared_database_cache(self):
         result = run_python(

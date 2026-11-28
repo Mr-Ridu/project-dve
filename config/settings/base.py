@@ -156,17 +156,6 @@ MEDIA_ROOT = Path(os.environ.get("DJANGO_MEDIA_ROOT") or (BASE_DIR / "media"))
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
 FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
 
-# --- Video signing (Phase 6 provider, Phase 10 wiring) -----------------------
-# Bunny Stream keys live in the environment, never in the repository. Empty
-# values mean "not configured yet": the playback endpoint answers 503 rather
-# than handing out an unsigned embed.
-BUNNY_STREAM_LIBRARY_ID = os.environ.get("BUNNY_STREAM_LIBRARY_ID", "")
-BUNNY_STREAM_SECURITY_KEY = os.environ.get("BUNNY_STREAM_SECURITY_KEY", "")
-# Management key for dashboard uploads (Bunny -> Stream -> library -> API).
-# Different value from the security key above, which only signs playback.
-# Empty means "upload disabled": the dashboard form explains what is missing.
-BUNNY_STREAM_API_KEY = os.environ.get("BUNNY_STREAM_API_KEY", "")
-
 # --- Rate limits ------------------------------------------------------------
 # {scope: (max_requests, window_seconds)}, consumed by core.throttle. Counted
 # per (action, client IP, account) in the cache; a burst past the limit gets an

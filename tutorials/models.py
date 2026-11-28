@@ -27,7 +27,6 @@ class Category(models.Model):
 class Tutorial(models.Model):
     class VideoProvider(models.TextChoices):
         NONE = "none", "No video yet"
-        BUNNY = "bunny", "Bunny Stream (signed playback)"
         YOUTUBE = "youtube", "YouTube (unlisted, privacy-enhanced embed)"
         URL = "url", "Plain URL (dev/preview only)"
 
@@ -52,10 +51,10 @@ class Tutorial(models.Model):
         choices=VideoProvider.choices,
         default=VideoProvider.NONE,
         help_text=(
-            "Bunny Stream is the signed production provider. YouTube plays an "
-            "unlisted video through the privacy-enhanced embed — the video id is "
-            "visible, so it suits low-budget content only. Plain URL is for local "
-            "preview only — it hands the stored URL to the browser unsigned."
+            "YouTube plays an unlisted video through the privacy-enhanced embed — "
+            "the video id is visible, so it suits low-budget content only. Plain URL "
+            "is for local preview only — it hands the stored URL to the browser "
+            "unsigned."
         ),
     )
     # Opaque reference for the chosen provider (asset id, external URL, ...).
@@ -65,8 +64,6 @@ class Tutorial(models.Model):
         max_length=500,
         blank=True,
         help_text=(
-            "Bunny Stream: the video GUID from the Stream library (for example "
-            "32d140e2-4f4e-4a1e-9f0a-1b2c3d4e5f60), never a full URL. "
             "YouTube: the 11-character video id or any watch/youtu.be/embed link. "
             "Plain URL: the full file or manifest URL."
         ),

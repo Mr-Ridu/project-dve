@@ -25,7 +25,6 @@ from tutorials.models import Category, Tutorial, TutorialAccess, TutorialProgres
 from core.models import NewsletterSubscriber
 from core.throttle import rate_limit
 from .forms import CategoryForm, TutorialForm
-from tutorials.providers import bunny_upload
 
 User = get_user_model()
 
@@ -228,25 +227,7 @@ def tutorial_edit(request, pk=None):
     if request.method == "POST":
         form = TutorialForm(request.POST, request.FILES, instance=tutorial)
         if form.is_valid():
-            saved = form.save(commit=False)
-            uploaded = form.cleaned_data.get("video_file")
-            if uploaded:
-                # Upload first, save second: a failed upload leaves the tutorial
-                # exactly as it was, with an explanation on the form.
-                try:
-                    guid = bunny_upload.upload_file(uploaded, title=saved.title)
-                except bunny_upload.UploadError as exc:
-                    form.add_error("video_file", f"{exc} (Choose the file again to retry.)")
-                    return render(request, "dashboard/tutorial_edit.html", {
-                        "form": form, "tutorial": tutorial,
-                    })
-                saved.video_provider = Tutorial.VideoProvider.BUNNY
-                saved.video_ref = guid
-                messages.success(
-                    request,
-                    f"Uploaded the video to Bunny Stream and attached it to “{saved.title}”.",
-                )
-            saved.save()
+            saved = form.save()
             _audit(
                 request,
                 AuditEvent.Action.TUTORIAL_UPDATED,

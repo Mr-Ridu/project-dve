@@ -3,8 +3,8 @@
 A fresh install has zero tutorials, which reads as "the frontend is broken"
 even though the library, the player and the permission flow all work. This
 command creates one published tutorial (and optionally grants it) using the
-plain-URL provider, which is for development/preview only — real playback is
-signed by Bunny once the library id and security key are configured.
+plain-URL provider, which is for development/preview only — real playback uses
+the YouTube unlisted provider.
 
 Refuses to run with DEBUG=False so demo rows cannot be seeded into production.
 """
@@ -89,7 +89,7 @@ class Command(BaseCommand):
         self.stdout.write(
             self.style.SUCCESS(
                 "Open /tutorials/ while signed in. Playback uses the plain-URL "
-                "provider; set BUNNY_STREAM_LIBRARY_ID and BUNNY_STREAM_SECURITY_KEY "
-                "for real signed playback."
+                "provider; add real videos with provider=YouTube and the 11-character "
+                "video id from the dashboard or the admin."
             )
         )
