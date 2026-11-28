@@ -18,8 +18,13 @@ from .throttle import rate_limit
 
 
 # --- Core pages -------------------------------------------------------------
+# The landing page's presentations band carries only this category. Every other
+# category (soft skills, operation, maintenance, ...) stays inside the library.
+HOME_PRESENTATION_CATEGORY_SLUG = "presentation"
+
+
 def home(request):
-    """Landing page; the presentations band shows the first four tutorials.
+    """Landing page; the presentations band shows the first four presentation videos.
 
     Thumbnails are public, but playback stays behind the tutorial access rules
     (can_access is re-checked on the detail and playback endpoints).
@@ -28,7 +33,10 @@ def home(request):
     from tutorials.models import Tutorial
 
     tutorials = annotate_queryset(
-        Tutorial.objects.filter(is_published=True).select_related("category"), request.user
+        Tutorial.objects.filter(
+            is_published=True, category__slug=HOME_PRESENTATION_CATEGORY_SLUG
+        ).select_related("category"),
+        request.user,
     )[:4]
     return render(
         request,
