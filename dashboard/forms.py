@@ -3,6 +3,7 @@ from django import forms
 from django.utils.text import slugify
 
 from tutorials.models import Category, Tutorial
+from tutorials.providers import youtube
 from tutorials.validators import validate_video_extension, validate_video_size
 
 
@@ -69,6 +70,28 @@ class TutorialForm(forms.ModelForm):
         if not self.instance.pk:
             self.fields["slug"].required = False  # auto-generated from title
             self.fields["slug"].help_text = "Leave blank to generate from the title."
+
+    def clean(self):
+        cleaned = super().clean()
+        # Catch a bad YouTube reference here, where the staff member can see the
+        # message, instead of letting the player answer 503 at play time.
+        if cleaned.get("video_provider") == Tutorial.VideoProvider.YOUTUBE:
+            ref = (cleaned.get("video_ref") or "").strip()
+            video_file = cleaned.get("video_file")
+            if not ref and not video_file:
+                self.add_error(
+                    "video_ref",
+                    "Paste the YouTube video id (11 characters) or the video's "
+                    "watch/youtu.be link.",
+                )
+            elif ref and not youtube.video_id(ref):
+                self.add_error(
+                    "video_ref",
+                    "That is not a YouTube video id or video link. Use the 11 "
+                    "characters after v= in the link, or paste the whole "
+                    "https://youtu.be/… link.",
+                )
+        return cleaned
 
     def save(self, commit=True):
         if not self.instance.pk and not self.cleaned_data.get("slug"):
