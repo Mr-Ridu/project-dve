@@ -203,8 +203,8 @@
         <div class="grid gap-4 sm:grid-cols-2">
           {% for tutorial in tutorials %}
           <a href="{% url 'tutorials:detail' tutorial.slug %}" class="group relative block overflow-hidden">
-            {% if tutorial.thumbnail %}
-            <img src="{{ tutorial.thumbnail.url }}" alt="{{ tutorial.title }}" class="aspect-[16/10] w-full object-cover transition group-hover:opacity-90" loading="lazy">
+            {% if tutorial.thumbnail_url %}
+            <img src="{{ tutorial.thumbnail_url }}" alt="{{ tutorial.title }}" class="aspect-[16/10] w-full object-cover transition group-hover:opacity-90" loading="lazy">
             {% else %}
             <span class="flex aspect-[16/10] w-full flex-col items-center justify-center bg-gradient-to-br from-[#7a3f9d] to-[#3d1a52] px-4">
               <svg viewBox="0 0 24 24" class="h-9 w-9 text-white/85" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

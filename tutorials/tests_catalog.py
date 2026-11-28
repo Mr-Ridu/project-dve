@@ -24,6 +24,26 @@ def make_user(username, *, status, **kw):
     return u
 
 
+class ThumbnailFallbackTests(TestCase):
+    """A tutorial created from just a YouTube link still gets a real poster."""
+
+    def test_youtube_tutorial_without_upload_uses_video_poster(self):
+        t = Tutorial.objects.create(
+            title="Linked only",
+            slug="linked-only",
+            video_provider="youtube",
+            video_ref="https://youtu.be/dQw4w9WgXcQ",
+            is_published=True,
+        )
+        self.assertEqual(
+            t.thumbnail_url, "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg"
+        )
+
+    def test_tutorial_without_video_or_upload_has_no_poster(self):
+        t = Tutorial.objects.create(title="Empty", slug="empty")
+        self.assertEqual(t.thumbnail_url, "")
+
+
 class CatalogBase(TestCase):
     def setUp(self):
         cache.clear()

@@ -81,6 +81,24 @@ class Tutorial(models.Model):
     def __str__(self):
         return self.title
 
+    @property
+    def thumbnail_url(self):
+        """Uploaded image wins; otherwise the video's own poster.
+
+        YouTube publishes stable poster images per video id, so a tutorial
+        created from just a link still shows a real still instead of an empty
+        tile. Nothing is fetched or stored server-side.
+        """
+        if self.thumbnail:
+            return self.thumbnail.url
+        if self.video_provider == self.VideoProvider.YOUTUBE:
+            from .providers import youtube
+
+            video_id_value = youtube.video_id(self.video_ref)
+            if video_id_value:
+                return f"https://i.ytimg.com/vi/{video_id_value}/hqdefault.jpg"
+        return ""
+
 
 class TutorialAccess(models.Model):
     """Explicit per-user grant. Revocation = deleting the row."""
