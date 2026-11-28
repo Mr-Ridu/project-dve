@@ -10,6 +10,7 @@ from django.contrib import messages
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.auth import views as auth_views
 from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_http_methods
 
@@ -24,6 +25,11 @@ def _client_ip(request):
     """Direct socket peer only — never a spoofable header."""
     xff = request.META.get("REMOTE_ADDR", "")
     return xff or None
+
+
+def _landing_for(user):
+    """Staff sign in to work: they land in the dashboard, everyone else home."""
+    return "dashboard:overview" if user.is_staff else "core:home"
 
 
 def _safe_redirect(request, fallback):
@@ -72,7 +78,7 @@ def register(request):
 @require_http_methods(["GET", "POST"])
 def login_view(request):
     if request.user.is_authenticated:
-        return redirect("core:home")
+        return redirect(reverse(_landing_for(request.user)))
 
     ip = _client_ip(request)
     if request.method == "POST":
@@ -93,9 +99,10 @@ def login_view(request):
                 return render(request, "accounts/login.html",
                               {"form": form, "next": request.POST.get("next", "")})
             auth_login(request, user)
-            next_url = _safe_redirect(request, "core:home")
+            next_url = _safe_redirect(request, reverse(_landing_for(user)))
             clear("login", ip, username)  # successes clear the counter
-            if not user.is_approved():
+            # Staff run the site, so tutorial approval never gates the dashboard.
+            if not user.is_approved() and not user.is_staff:
                 messages.warning(
                     request,
                     "Your account has not been approved for tutorial access yet. "
@@ -105,6 +112,25 @@ def login_view(request):
             return redirect(next_url)
         record_failure("login", ip, username)
     return render(request, "accounts/login.html", {"form": form, "next": request.GET.get("next", "")})
+
+
+@require_http_methods(["GET", "POST"])
+def admin_login(request):
+    """Django's admin sign-in, ending on the staff dashboard.
+
+    `/admin/` still works when opened directly (or reached through a `?next=`),
+    but a plain sign-in no longer dumps staff on the admin index.
+    """
+    from django.contrib import admin
+
+    response = admin.site.login(request)
+    if (
+        request.user.is_authenticated
+        and request.user.is_staff
+        and not (request.POST.get("next") or request.GET.get("next"))
+    ):
+        return redirect("dashboard:overview")
+    return response
 
 
 @require_http_methods(["POST"])

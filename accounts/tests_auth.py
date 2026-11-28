@@ -160,6 +160,30 @@ class RedirectSafetyTests(ThrottleIsolation):
         self.assertRedirects(r, "/about/", fetch_redirect_response=False)
 
 
+class StaffLandingTests(ThrottleIsolation):
+    """Staff sign in to work, so a plain login opens the dashboard."""
+
+    def test_staff_login_lands_on_dashboard(self):
+        u = User.objects.create_user("staffer", password=VALID_PASSWORD)
+        u.is_staff = True
+        u.save()
+        r = self.client.post(
+            reverse("accounts:login"),
+            {"username": "staffer", "password": VALID_PASSWORD},
+        )
+        self.assertRedirects(r, reverse("dashboard:overview"))
+
+    def test_admin_login_lands_on_dashboard(self):
+        u = User.objects.create_user("admin-staff", password=VALID_PASSWORD)
+        u.is_staff = True
+        u.is_superuser = True
+        u.save()
+        r = self.client.post(
+            "/admin/login/", {"username": "admin-staff", "password": VALID_PASSWORD}
+        )
+        self.assertRedirects(r, reverse("dashboard:overview"))
+
+
 class LogoutTests(ThrottleIsolation):
     def test_logout_is_post_only(self):
         r = self.client.get(reverse("accounts:logout"))
